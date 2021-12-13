@@ -1,0 +1,3 @@
+one:
+  grid-size: 10
+  init-neurons: 10
