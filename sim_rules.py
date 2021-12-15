@@ -1,5 +1,5 @@
 def rule1(self):
-    pass
+    print("rule1 executed")
 
 def rule2(self):
     pass

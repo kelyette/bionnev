@@ -65,13 +65,21 @@ class Cell:
         )
         
 class Environment:
-    def __init__(self):
+    def __init__(self, rules):
+        self.rules = rules
+        
         self.clock = 0
         self.size = params["grid_size"]
         self.ncell = params["n_cell"]
         self.grid = np.zeros((self.size, self.size), dtype=int)
         self.cells = [Cell() for _ in range(params["n_cell"])]
         self.pos_map = 0
+        
+    def __getattr__(self, attr):
+        def callback(*args, **kwargs):
+            return attr(*args, **kwargs)
+            
+        return callback
 
     def call_all(self, attr, *args, **kwargs):
         methods = [getattr(e, f"{attr}") for e in self.cells]
@@ -97,23 +105,31 @@ class Environment:
     def plotgrid(self):
         plt.title(f"Generation {self.clock}")
         plt.imshow(self.grid, interpolation="none", cmap="GnBu")
+        plt.show()
 
 
 class Simulation:
     def __init__(self, rule="rule1"):
-        self.e = Environment()
-        self.rules = inspect.getmembers(sim_rules, inspect.isfunction)
+        rules = inspect.getmembers(sim_rules, inspect.isfunction)
+        self.rule = next((r for r in rules if r[0] == rule), None)
+        
+        if self.rule == None: raise AttributeError(f"{rule} is not a valid simulation ruleset. [{', '.join(r[0] for r in rules)}]")
+        self.e = Environment(rules)
+        print(dir(self.e))
+        print("--------------")
+        setattr(self.e, self.rule[0], self.rule[1])
+        print(dir(self.e))
     
     def main(self):
-        for _ in range(params["num_sim"]):
+        for i in range(params["num_sim"]):
+            print("iteration n.", i)
             try:
-                self.e.update()
+                getattr(self.e, self.rule[0])(self.e)
                 self.e.get_grid()
                 self.e.plotgrid()
                 
             except Exception as e:
                 print("Dead")
-                print(e)
             
             
 s = Simulation()
