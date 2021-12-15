@@ -3,8 +3,8 @@ one:
   grid_size: 10
   num_sensors: 5
   num_actions: 4
-  n_cell: 1
-  mean_death: 10
+  n_cell: 2
+  mean_death: 100
   std_death: 5
   mean_sex: 0.5
   std_sex: 0.1
