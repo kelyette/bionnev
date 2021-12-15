@@ -65,9 +65,7 @@ class Cell:
         )
         
 class Environment:
-    def __init__(self, rules):
-        self.rules = rules
-        
+    def __init__(self):
         self.clock = 0
         self.size = params["grid_size"]
         self.ncell = params["n_cell"]
@@ -114,7 +112,7 @@ class Simulation:
         self.rule = next((r for r in rules if r[0] == rule), None)
         
         if self.rule == None: raise AttributeError(f"{rule} is not a valid simulation ruleset. [{', '.join(r[0] for r in rules)}]")
-        self.e = Environment(rules)
+        self.e = Environment()
         print(dir(self.e))
         print("--------------")
         setattr(self.e, self.rule[0], self.rule[1])
