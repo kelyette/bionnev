@@ -1,9 +1,9 @@
 one:
+  n_cell: 2
   num_sim: 100
   grid_size: 10
   num_sensors: 5
   num_actions: 4
-  n_cell: 2
   mean_death: 100
   std_death: 5
   mean_sex: 0.5
