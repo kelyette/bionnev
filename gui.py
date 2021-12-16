@@ -27,7 +27,7 @@ main_layout = [
 window = sg.Window("Cell simulation",main_layout, finalize=True,font=font,resizable=True)
 
 def main():
-    while True:
+    while True: 
         event, values = window.read()
         if event == sg.WIN_CLOSED:
             break
