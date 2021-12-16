@@ -26,10 +26,3 @@ class Cell:
     def think(self):
         self.actions = (
             1 / (1 + np.exp(-1 * self.brain_dna @ self.sensors))).round()
-
-    def move(self):
-        self.pos = np.maximum.reduce(
-            [np.minimum.reduce([self.pos + 
-            (self.actions[:2].ravel() - self.actions[2:4].ravel()) * 
-            self.velocity, np.ones(2)*(self.grid_size-1)]), np.zeros(2)]
-        )
