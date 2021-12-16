@@ -1,4 +1,4 @@
-def default(self, clock, pos_map):
+def cell_rule1(self, clock, pos_map):
     self.move()
     self.update_sensors(clock, pos_map)
     self.think()

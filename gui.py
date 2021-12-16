@@ -34,13 +34,11 @@ def plot(fig, map):
     if map is None:
         return fig
 
-
 def draw_figure(canvas, figure, loc=(0, 0)):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
-
 
 def choose_rule(rule_dict, chosen_rule, title):
     rule_left_layout = [
@@ -69,7 +67,6 @@ def choose_rule(rule_dict, chosen_rule, title):
     rule_window.close()
 
     return chosen_rule
-
 
 def change_params(params, env_rule, cell_rule):
     bool_params = [env_rules[env_rule]['params'][i] + cell_rules[cell_rule]
@@ -138,8 +135,8 @@ window = sg.Window("Cells Evolution Simulator", main_layout, finalize=True, font
 
 fig = draw_figure(window['plot'].TKCanvas, plot(None, None))
 
-
 def main():
+    
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED:
@@ -159,7 +156,6 @@ def main():
             change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
 
     window.close()
-
 
 if __name__ == '__main__':
     main()

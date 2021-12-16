@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import rules.cell_rules as cr
-import rules.sim_rules as sr
+import rules.env_rules as sr
 import numpy as np
 import inspect
 import yaml
 
 with open("params.yaml", "r") as f:
-    params = yaml.safe_load(f)["one"]
+    params = yaml.safe_load(f)["values"]
     
 params["mean_physics"] = np.array([
     params["mean_death"],
@@ -40,7 +40,7 @@ class Cell:
     def live(self, clock, pos_map):
         self.move()
         self.update_sensors(clock, pos_map)
-        self.think()
+        #self.think()
         self.age += 1
         if self.age >= self.death_age:
             self.alive = False
@@ -67,8 +67,6 @@ class Cell:
         
 class Environment:
     def __init__(self):
-        self.cellrule = "default"
-        
         self.clock = 0
         self.size = params["grid_size"]
         self.ncell = params["n_cell"]
@@ -76,32 +74,21 @@ class Environment:
         self.cells = [Cell() for _ in range(params["n_cell"])]
         self.pos_map = 0
         
-    def __getattr__(self, attr):
-        def callback(*args, **kwargs):
-            return attr(*args, **kwargs)
-            
-        return callback
-
     def call_all(self, attr, *args, **kwargs):
-        methods = [getattr(e, f"{attr}") for e in self.cells]
-        return [method(*args, **kwargs) for method in methods]
-
-    def update(self):
-        if not np.any(self.cells):
-            return 0
-        
-        self.call_all(self.cellrule, self.clock, self.pos_map)
-        self.clock += 1
-        self.call_all("think")
-        self.cells = [c for c in self.cells if c.alive]
-        return 1
+        for cell in self.cells:
+            try:
+                getattr(cell, attr)(cell, *args, **kwargs)
+            except Exception as e:
+                print(e)
+        # methods = [getattr(c, attr) for c in self.cells]
+        # return [method(self, *args, **kwargs) for method in methods]
 
     def get_grid(self):
         self.grid = np.zeros((self.size, self.size), dtype=int)
-        self.pos_map = list(
-            map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], self.cells))
+        self.pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], self.cells))
         rows, cols = zip(*self.pos_map)
         self.grid[rows, cols] = 1
+        return self.grid.copy()
 
     def plotgrid(self):
         plt.title(f"Generation {self.clock}")
@@ -110,38 +97,38 @@ class Environment:
 
 
 class Simulation:
-    def __init__(self, wsimrule="default", wcellrule="default"):
-        simrules = inspect.getmembers(sr, inspect.isfunction) # Get all rules as functions
-        self.simrule = next((r for r in simrules if r[0] == wsimrule), None) # Get the first object that matches the wanted simrule
+    def __init__(self, wenvrule="env_rule1", wcellrule="cell_rule1"):
         
-        if self.simrule == None: raise AttributeError(f"{wsimrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in simrules)}]")
+        envrules = inspect.getmembers(sr, inspect.isfunction) # Get all rules as functions
+        self.envrule = next((r for r in envrules if r[0] == wenvrule), None) # Get the first object that matches the wanted envrule
+        if not self.envrule: raise AttributeError(f"{wenvrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in envrules)}]")
         
-        self.e = Environment() # Initialize the environment
-        setattr(self.e, self.simrule[0], self.simrule[1]) # Bind the desired rule method to the environment
+        self.env = Environment() # Initialize the environment
+        setattr(self.env, self.envrule[0], self.envrule[1]) # Bind the desired rule method to the environment
         
         # Almost the same steps as above
         cellrules = inspect.getmembers(cr, inspect.isfunction) 
         cellrule = next((r for r in cellrules if r[0] == wcellrule), None)
         
-        if cellrule == None: raise AttributeError(f"{wcellrule} is not a valid cell ruleset. [{', '.join(r[0] for r in cellrules)}]")
+        if not cellrule: raise AttributeError(f"{wcellrule} is not a valid cell ruleset. [{', '.join(r[0] for r in cellrules)}]")
         
-        for c in self.e.cells:
-            setattr(c, self.cellrule[0], self.cellrule[1])
-            
-        self.e.cellrule = cellrule
+        print(cellrule)
+        self.env.cellrule = cellrule
+        
+        for c in self.env.cells:
+            setattr(c, cellrule[0], cellrule[1])
+            c.cellrule = cellrule
     
     def main(self):
         for i in range(params["num_sim"]):
             print("iteration n.", i)
             try:
-                getattr(self.e, self.simrule[0])(self.e)
-                self.e.get_grid()
-                self.e.plotgrid()
-                
+                getattr(self.env, self.envrule[0])(self.env)
+                self.env.get_grid()
+                self.env.plotgrid()
             except ValueError as ve:
                 print("Dead")
                 break
-            
         return 0
 
 if __name__ == "__main__":

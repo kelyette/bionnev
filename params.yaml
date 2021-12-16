@@ -3,7 +3,7 @@ values:
   grid_size: 10
   num_sensors: 5
   num_actions: 4
-  n_cell: 2
+  n_cell: 3
   mean_death: 100.0
   std_death: 5.0
   mean_sex: 0.5
