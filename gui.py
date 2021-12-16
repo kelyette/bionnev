@@ -1,22 +1,43 @@
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from PySimpleGUI.PySimpleGUI import SELECT_MODE_SINGLE
-import PySimpleGUI as sg
-import matplotlib.pyplot as plt
+import yaml, time
 import numpy as np
 import matplotlib
-import yaml
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import PySimpleGUI as sg
+
+from src.simulation import Simulation
+
 matplotlib.use('TkAgg')
 
-with open("params.yaml", "r") as f:
+with open("parameters/params.yaml", "r") as f:
     all_params = yaml.safe_load(f)
     params = all_params['values']
     params_exp = all_params['exp']
 
-with open("env_rules.yaml", "r") as f:
+def get_mean_std(params):
+    params["mean_physics"] = np.array([
+        params["mean_death"],
+        params["mean_sex"],
+        params["mean_strength"],
+        params["mean_velocity"],
+    ])
+
+    params["std_physics"] = np.array([
+        params["std_death"],
+        params["std_sex"],
+        params["std_strength"],    
+        params["std_velocity"],    
+    ])
+    
+    return params
+
+params = get_mean_std(params)
+
+with open("parameters/env_rules.yaml", "r") as f:
     env_rules = yaml.safe_load(f)
 default_env_rule = list(env_rules.keys())[0]
 
-with open("cell_rules.yaml", "r") as f:
+with open("parameters/cell_rules.yaml", "r") as f:
     cell_rules = yaml.safe_load(f)
 default_cell_rule = list(cell_rules.keys())[0]
 
@@ -26,14 +47,16 @@ titlefont = ('Helvetica', 14, "bold")
 figsize = (5, 5)
 
 
-def plot(fig, grid):
-    if fig is not None:
+def plot(fig, grid, env):
+    if fig:
         fig.get_tk_widget().forget()
-    fig = matplotlib.figure.Figure(figsize=figsize)
-    fig.add_subplot(111)
     if grid is None:
+        fig = matplotlib.figure.Figure(figsize=figsize)
+        fig.add_subplot(111)
         return fig
+    plt.title(f"Epoch {env.clock}")
     plt.imshow(grid, interpolation="none", cmap="GnBu")
+    return plt.gcf()
     
 
 def draw_figure(canvas, figure, loc=(0, 0)):
@@ -45,7 +68,7 @@ def draw_figure(canvas, figure, loc=(0, 0)):
 def choose_rule(rule_dict, chosen_rule, title):
     rule_left_layout = [
         [sg.Text("All available rules", font=titlefont)],
-        [sg.Listbox([rule for rule in rule_dict.keys()], default_values=chosen_rule, key='selected_rule', select_mode=SELECT_MODE_SINGLE, size=(10, 10), enable_events=True)],
+        [sg.Listbox([rule for rule in rule_dict.keys()], default_values=chosen_rule, key='selected_rule', select_mode=sg.SELECT_MODE_SINGLE, size=(10, 10), enable_events=True)],
     ]
     rule_right_layout = [
         [sg.Text("Explanation", font=titlefont)],
@@ -70,15 +93,13 @@ def choose_rule(rule_dict, chosen_rule, title):
     return chosen_rule
 
 def change_params(params, env_rule, cell_rule):
-    bool_params = [env_rules[env_rule]['params'][i] + cell_rules[cell_rule]
-                   ['params'][i] for i in range(len(cell_rules[cell_rule]['params']))]
-    needed_params = {list(params.keys())[i]: params[list(params.keys())[
-        i]] for i in range(len(params)) if bool_params[i]}
+    bool_params = [env_rules[env_rule]['params'][i] + cell_rules[cell_rule]['params'][i] for i in range(len(cell_rules[cell_rule]['params']))]
+    needed_params = {list(params.keys())[i]: params[list(params.keys())[i]] for i in range(len(bool_params)) if bool_params[i]}
     selected_key = list(needed_params.keys())[0]
 
     params_left_layout = [
         [sg.Text("All available parameters", font=titlefont)],
-        [sg.Listbox([rule for rule in needed_params.keys()], default_values=selected_key, key='selected_key', select_mode=SELECT_MODE_SINGLE, size=(10, 10), enable_events=True)],
+        [sg.Listbox([rule for rule in needed_params.keys()], default_values=selected_key, key='selected_key', select_mode=sg.SELECT_MODE_SINGLE, size=(10, 10), enable_events=True)],
     ]
     params_right_layout = [
         [sg.Text("Value", font=titlefont)],
@@ -101,21 +122,13 @@ def change_params(params, env_rule, cell_rule):
             params_window.Element('value').Update(value=needed_params[selected_key])
             params_window.Element('explanation').Update(value=params_exp[selected_key])
             
-        elif params_values['value'] != needed_params[selected_key]:
-            try:
-                new_value = int(params_values['value']) if int(params_values['value']) == float(
-                    params_values['value']) else float(params_values['value'])
-                if isinstance(new_value, type(needed_params[selected_key])):
-                    needed_params[selected_key] = params_values['value']
-                else:
-                    sg.popup_error(
-                        f"The value you inputted must be {type(needed_params[selected_key])}, not {type(new_value)}")
-            except:
-                sg.popup_error(
-                    f"The value you inputted cannot be transformed into a number.")
+        elif params_values['value'] != str(needed_params[selected_key]):
+            needed_params[selected_key] = float(params_values['value'])
+                
         elif params_event == 'Save Changes':
             for k in list(needed_params.keys()):
                 params[k] = needed_params[k]
+            break
     params_window.close()
     return params
 
@@ -125,7 +138,6 @@ main_left_layout = [
     [sg.Text("Enviroment rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_env_rule, font=font, key='chosen_env_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='env_rule')],
     [sg.Text("Cell rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_cell_rule, font=font, key='chosen_cell_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='cell_rule')],
     [sg.Text("Parameters:  ", font=font, size=(15, 1)), sg.Button("Modify", key='params')],
-    [sg.Button("Launch simulation")],
     [sg.Text("Controls", font=titlefont)],
     [sg.Button("Prec"), sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
 ]
@@ -137,11 +149,11 @@ main_layout = [
 ]
 window = sg.Window("Cells Evolution Simulator", main_layout, finalize=True, font=font, resizable=True, location=(20, 20))
 
-fig = draw_figure(window['plot'].TKCanvas, plot(None, None))
-
-sim = Simulation(params)
-
 def main():
+    global params 
+    sim = Simulation(params)
+    fig = draw_figure(window['plot'].TKCanvas, plot(None, None, None))
+    
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED:
@@ -150,21 +162,31 @@ def main():
             chosen_rule = values['chosen_env_rule']
             chosen_rule = choose_rule(env_rules, chosen_rule, "Environment Rule Selection")
             window.Element('chosen_env_rule').Update(value=chosen_rule)
-            sim.update_rules(new_envrule=chosen_rule)
+            sim.update_rules(new_envrule=env_rules[chosen_rule]['fun'])
+            
 
         elif event == 'cell_rule':
             chosen_rule = values['chosen_cell_rule']
             chosen_rule = choose_rule(cell_rules, chosen_rule, "Cell Rule Selection")
             window.Element('chosen_cell_rule').Update(value=chosen_rule)
-            sim.update_rules(new_envrule=chosen_rule)
+            sim.update_rules(new_cellrule=cell_rules[chosen_rule]['fun'])
 
         elif event == 'params':
             params = change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
-            sim.update_params(params)
+            params = get_mean_std(params)
+            del sim
+            sim = Simulation(params)
 
         elif event == 'Next':
             sim.next()
-            fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.get_grid()))
+            fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.env.get_grid(), sim.env))
+
+        elif event == 'Play':
+            while True:
+                sim.next()
+                fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.env.get_grid(), sim.env))
+
+
 
     window.close()
 
