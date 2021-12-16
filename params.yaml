@@ -1,21 +1,11 @@
-<<<<<<< HEAD
-one:
-  n_cell: 2
-=======
-values:
->>>>>>> 0c9302e59b87aa34102a931e1b79d3a99002c765
+values: 
   num_sim: 100
   grid_size: 10
   num_sensors: 5
   num_actions: 4
-<<<<<<< HEAD
-  mean_death: 10
-  std_death: 5
-=======
   n_cell: 2
   mean_death: 100.0
   std_death: 5.0
->>>>>>> 0c9302e59b87aa34102a931e1b79d3a99002c765
   mean_sex: 0.5
   std_sex: 0.1
   mean_strength: 100.0
@@ -23,7 +13,7 @@ values:
   mean_velocity: 1.0
   std_velocity: 0.3
 
-exp:
+exp: 
   num_sim: 'number of simulations that will occur'
   grid_size: 'size of the square grid of the enviroment'
   num_sensors: 'number of neurons that are inputs, do not change except if you change the coding of the cell'
