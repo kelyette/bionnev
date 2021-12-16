@@ -1,3 +1,4 @@
+import threading
 import yaml, time
 import numpy as np
 import matplotlib
@@ -64,6 +65,12 @@ def draw_figure(canvas, figure, loc=(0, 0)):
     figure_canvas_agg.draw()
     figure_canvas_agg.get_tk_widget().pack(side='top', fill='both', expand=1)
     return figure_canvas_agg
+
+def plot_loop(sim, fig):
+    while True:
+        sim.next()
+        fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.env.get_grid(), sim.env))
+        time.sleep(0.3)
 
 def choose_rule(rule_dict, chosen_rule, title):
     rule_left_layout = [
@@ -182,11 +189,9 @@ def main():
             fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.env.get_grid(), sim.env))
 
         elif event == 'Play':
-            while True:
-                sim.next()
-                fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.env.get_grid(), sim.env))
-
-
+            t = threading.Thread(target=plot_loop, args=(sim, fig))
+            t.daemon = True
+            t.start()
 
     window.close()
 
