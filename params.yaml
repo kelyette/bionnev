@@ -1,14 +1,39 @@
+<<<<<<< HEAD
 one:
   n_cell: 2
+=======
+values:
+>>>>>>> 0c9302e59b87aa34102a931e1b79d3a99002c765
   num_sim: 100
   grid_size: 10
   num_sensors: 5
   num_actions: 4
+<<<<<<< HEAD
   mean_death: 10
   std_death: 5
+=======
+  n_cell: 2
+  mean_death: 100.0
+  std_death: 5.0
+>>>>>>> 0c9302e59b87aa34102a931e1b79d3a99002c765
   mean_sex: 0.5
   std_sex: 0.1
-  mean_strength: 100
-  std_strength: 20
-  mean_velocity: 1
+  mean_strength: 100.0
+  std_strength: 20.0
+  mean_velocity: 1.0
   std_velocity: 0.3
+
+exp:
+  num_sim: 'number of simulations that will occur'
+  grid_size: 'size of the square grid of the enviroment'
+  num_sensors: 'number of neurons that are inputs, do not change except if you change the coding of the cell'
+  num_actions: 'number of neurons that are actions, do not change except if you change the coding of the cell'
+  n_cell: 'number of cells at the beginning'
+  mean_death: 'mean death age (one unit of age is one simulation)'
+  std_death: 'standard deviation of age'
+  mean_sex: 'mean sex '
+  std_sex: 'standard deviation of sex'
+  mean_strength: 'mean strength'
+  std_strength: 'standard deviation of strengh'
+  mean_velocity: 'mean velocity'
+  std_velocity: 'standard deviaiton of velocity'
