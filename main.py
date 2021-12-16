@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
+import rules.cell_rules as cr
+import rules.sim_rules as sr
 import numpy as np
-import sim_rules
 import inspect
 import yaml
 
@@ -107,20 +108,23 @@ class Environment:
 
 
 class Simulation:
-    def __init__(self, simrule="default"):
-        simrules = inspect.getmembers(sim_rules, inspect.isfunction)
-        print(simrules)
-        self.simrule = next((r for r in simrules if r[0] == simrule), None)
+    def __init__(self, wsimrule="default", wcellrule="default"):
+        simrules = inspect.getmembers(sr, inspect.isfunction) # Get all rules as functions
+        self.simrule = next((r for r in simrules if r[0] == wsimrule), None) # Get the first object that matches the wanted simrule
         
-        if self.simrule == None: raise AttributeError(f"{simrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in simrules)}]")
-        self.e = Environment()
-        print(dir(self.e))
-        print("--------------")
-        setattr(self.e, self.simrule[0], self.simrule[1])
-        print(dir(self.e))
+        if self.simrule == None: raise AttributeError(f"{wsimrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in simrules)}]")
         
-        # for c in self.e.cells:
-        #     setattr(c)
+        self.e = Environment() # Initialize the environment
+        setattr(self.e, self.simrule[0], self.simrule[1]) # Bind the desired rule method to the environment
+        
+        # Almost the same steps as above
+        cellrules = inspect.getmembers(cr, inspect.isfunction) 
+        cellrule = next((r for r in cellrules if r[0] == wcellrule), None)
+        
+        if cellrule == None: raise AttributeError(f"{wcellrule} is not a valid cell ruleset. [{', '.join(r[0] for r in cellrules)}]")
+        
+        for c in self.e.cells:
+            setattr(c, self.cellrule[0], self.cellrule[1])
     
     def main(self):
         for i in range(params["num_sim"]):
