@@ -67,6 +67,8 @@ class Cell:
         
 class Environment:
     def __init__(self):
+        self.cellrule = "default"
+        
         self.clock = 0
         self.size = params["grid_size"]
         self.ncell = params["n_cell"]
@@ -88,7 +90,7 @@ class Environment:
         if not np.any(self.cells):
             return 0
         
-        self.call_all("live", self.clock, self.pos_map)
+        self.call_all(self.cellrule, self.clock, self.pos_map)
         self.clock += 1
         self.call_all("think")
         self.cells = [c for c in self.cells if c.alive]
@@ -125,6 +127,8 @@ class Simulation:
         
         for c in self.e.cells:
             setattr(c, self.cellrule[0], self.cellrule[1])
+            
+        self.e.cellrule = cellrule
     
     def main(self):
         for i in range(params["num_sim"]):
@@ -139,6 +143,7 @@ class Simulation:
                 break
             
         return 0
-            
-s = Simulation()
-s.main()
+
+if __name__ == "__main__":
+    s = Simulation()
+    s.main()
