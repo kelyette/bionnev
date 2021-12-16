@@ -107,28 +107,34 @@ class Environment:
 
 
 class Simulation:
-    def __init__(self, rule="rule1"):
-        rules = inspect.getmembers(sim_rules, inspect.isfunction)
-        self.rule = next((r for r in rules if r[0] == rule), None)
+    def __init__(self, simrule="default"):
+        simrules = inspect.getmembers(sim_rules, inspect.isfunction)
+        print(simrules)
+        self.simrule = next((r for r in simrules if r[0] == simrule), None)
         
-        if self.rule == None: raise AttributeError(f"{rule} is not a valid simulation ruleset. [{', '.join(r[0] for r in rules)}]")
+        if self.simrule == None: raise AttributeError(f"{simrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in simrules)}]")
         self.e = Environment()
         print(dir(self.e))
         print("--------------")
-        setattr(self.e, self.rule[0], self.rule[1])
+        setattr(self.e, self.simrule[0], self.simrule[1])
         print(dir(self.e))
+        
+        # for c in self.e.cells:
+        #     setattr(c)
     
     def main(self):
         for i in range(params["num_sim"]):
             print("iteration n.", i)
             try:
-                getattr(self.e, self.rule[0])(self.e)
+                getattr(self.e, self.simrule[0])(self.e)
                 self.e.get_grid()
                 self.e.plotgrid()
                 
-            except Exception as e:
+            except ValueError as ve:
                 print("Dead")
+                break
             
+        return 0
             
 s = Simulation()
 s.main()
