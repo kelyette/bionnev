@@ -1,3 +1,4 @@
+from PySimpleGUI.PySimpleGUI import DEFAULT_TEXT_COLOR
 import matplotlib.pyplot as plt
 import rules.cell_rules as cr
 import rules.env_rules as sr
@@ -66,7 +67,7 @@ class Cell:
         )
         
 class Environment:
-    def __init__(self):
+    def __init__(self, params):
         self.clock = 0
         self.size = params["grid_size"]
         self.ncell = params["n_cell"]
@@ -95,41 +96,49 @@ class Environment:
         plt.imshow(self.grid, interpolation="none", cmap="GnBu")
         plt.show()
 
-
 class Simulation:
-    def __init__(self, wenvrule="env_rule1", wcellrule="cell_rule1"):
+    def __init__(self, params, wenvrule="env_rule1", wcellrule="cell_rule1"):
+        self.update_params(params)
+        self.env = Environment(params) # Initialize the environment
+        self.update_rules(wenvrule, wcellrule)
+ 
+    def update_params(self, new_params):
+        self.params = new_params
         
-        envrules = inspect.getmembers(sr, inspect.isfunction) # Get all rules as functions
-        self.envrule = next((r for r in envrules if r[0] == wenvrule), None) # Get the first object that matches the wanted envrule
-        if not self.envrule: raise AttributeError(f"{wenvrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in envrules)}]")
+    def update_rules(self, new_envrule=None, new_cellrule=None):
+        if new_envrule:
+            envrules = inspect.getmembers(sr, inspect.isfunction) # Get all rules as functions
+            self.envrule = next((r for r in envrules if r[0] == new_envrule), None) # Get the first object that matches the wanted envrule
+            if not self.envrule: raise AttributeError(f"{new_envrule} is not a valid simulation ruleset. [{', '.join(r[0] for r in envrules)}]")
         
-        self.env = Environment() # Initialize the environment
         setattr(self.env, self.envrule[0], self.envrule[1]) # Bind the desired rule method to the environment
         
-        # Almost the same steps as above
-        cellrules = inspect.getmembers(cr, inspect.isfunction) 
-        cellrule = next((r for r in cellrules if r[0] == wcellrule), None)
-        
-        if not cellrule: raise AttributeError(f"{wcellrule} is not a valid cell ruleset. [{', '.join(r[0] for r in cellrules)}]")
-        
-        print(cellrule)
-        self.env.cellrule = cellrule
+        if new_cellrule: 
+            cellrules = inspect.getmembers(cr, inspect.isfunction) 
+            cellrule = next((r for r in cellrules if r[0] == new_cellrule), None)
+            if not cellrule: raise AttributeError(f"{new_cellrule} is not a valid cell ruleset. [{', '.join(r[0] for r in cellrules)}]")
+            self.env.cellrule = cellrule
         
         for c in self.env.cells:
             setattr(c, cellrule[0], cellrule[1])
             c.cellrule = cellrule
-    
+
     def main(self):
-        for i in range(params["num_sim"]):
-            print("iteration n.", i)
+        for i in range(self.params["num_sim"]):
+            print("Iteration n.", i)
             try:
-                getattr(self.env, self.envrule[0])(self.env)
+                self.next()
                 self.env.get_grid()
                 self.env.plotgrid()
+
             except ValueError as ve:
                 print("Dead")
                 break
         return 0
+
+    def next(self):
+        getattr(self.env, self.envrule[0])(self.env)
+
 
 if __name__ == "__main__":
     s = Simulation()

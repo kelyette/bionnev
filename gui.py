@@ -1,10 +1,10 @@
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import yaml
 from PySimpleGUI.PySimpleGUI import SELECT_MODE_SINGLE
-import numpy as np
 import PySimpleGUI as sg
-import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib
+import yaml
 matplotlib.use('TkAgg')
 
 with open("params.yaml", "r") as f:
@@ -26,13 +26,15 @@ titlefont = ('Helvetica', 14, "bold")
 figsize = (5, 5)
 
 
-def plot(fig, map):
+def plot(fig, grid):
     if fig is not None:
         fig.get_tk_widget().forget()
     fig = matplotlib.figure.Figure(figsize=figsize)
     fig.add_subplot(111)
-    if map is None:
+    if grid is None:
         return fig
+    plt.imshow(grid, interpolation="none", cmap="GnBu")
+    
 
 def draw_figure(canvas, figure, loc=(0, 0)):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
@@ -65,7 +67,6 @@ def choose_rule(rule_dict, chosen_rule, title):
             chosen_rule = rule_values['selected_rule'][0]
             rule_window.Element('explanation').Update(value=rule_dict[chosen_rule]['exp'])
     rule_window.close()
-
     return chosen_rule
 
 def change_params(params, env_rule, cell_rule):
@@ -116,6 +117,7 @@ def change_params(params, env_rule, cell_rule):
             for k in list(needed_params.keys()):
                 params[k] = needed_params[k]
     params_window.close()
+    return params
 
 
 main_left_layout = [
@@ -123,7 +125,9 @@ main_left_layout = [
     [sg.Text("Enviroment rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_env_rule, font=font, key='chosen_env_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='env_rule')],
     [sg.Text("Cell rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_cell_rule, font=font, key='chosen_cell_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='cell_rule')],
     [sg.Text("Parameters:  ", font=font, size=(15, 1)), sg.Button("Modify", key='params')],
-    [sg.Button("Launch simulation")]
+    [sg.Button("Launch simulation")],
+    [sg.Text("Controls", font=titlefont)],
+    [sg.Button("Prec"), sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
 ]
 main_right_layout = [
     [sg.Canvas(size=(10, 10), key="plot")],
@@ -135,25 +139,32 @@ window = sg.Window("Cells Evolution Simulator", main_layout, finalize=True, font
 
 fig = draw_figure(window['plot'].TKCanvas, plot(None, None))
 
+sim = Simulation(params)
+
 def main():
-    
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED:
             break
-
         elif event == 'env_rule':
             chosen_rule = values['chosen_env_rule']
             chosen_rule = choose_rule(env_rules, chosen_rule, "Environment Rule Selection")
             window.Element('chosen_env_rule').Update(value=chosen_rule)
+            sim.update_rules(new_envrule=chosen_rule)
 
         elif event == 'cell_rule':
             chosen_rule = values['chosen_cell_rule']
             chosen_rule = choose_rule(cell_rules, chosen_rule, "Cell Rule Selection")
             window.Element('chosen_cell_rule').Update(value=chosen_rule)
+            sim.update_rules(new_envrule=chosen_rule)
 
         elif event == 'params':
-            change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
+            params = change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
+            sim.update_params(params)
+
+        elif event == 'Next':
+            sim.next()
+            fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.get_grid()))
 
     window.close()
 
