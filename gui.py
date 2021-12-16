@@ -46,9 +46,9 @@ font = ('Helvetica', 12)
 titlefont = ('Helvetica', 14, "bold")
 figsize = (5, 5)
 
-
 def plot(fig, grid, env):
     if fig:
+        plt.clf()
         fig.get_tk_widget().forget()
     if grid is None:
         fig = matplotlib.figure.Figure(figsize=figsize)
