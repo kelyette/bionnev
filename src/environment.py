@@ -2,16 +2,17 @@ import numpy as np
 from src.cell import Cell
 
 class Environment:
-    def __init__(self, params):
+    def __init__(self,params):
+        self.params = params
         self.clock = 0
         self.size = int(params["grid_size"])
         self.ncell = params["n_cell"]
         self.grid = np.zeros((self.size, self.size), dtype=int)
-        self.cells = [Cell(params) for _ in range(params["n_cell"])]
+        self.cells = [Cell(params) for _ in range(int(params["n_cell"]))]
         self.pos_map = 0
         
-    def call_all(self, attr, *args, **kwargs):
-        for cell in self.cells:
+    def call_all(self, chosen_cells, attr, *args, **kwargs):
+        for cell in chosen_cells:
             try:
                 getattr(cell, attr)(cell, *args, **kwargs)
             except Exception as e:

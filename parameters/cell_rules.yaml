@@ -1,9 +1,0 @@
-rule1:
-  fun : 'cell_rule1'
-  exp : 'they are stupid'
-  params : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
-
-rule2:
-  fun : 'cell_rule2'
-  exp : 'plus dinspi'
-  params : [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, ]

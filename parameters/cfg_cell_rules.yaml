@@ -1,0 +1,13 @@
+rule1:
+  fun: 'cell_rule1'
+  num_sensors: 0
+  num_actions: 0
+  exp: ''
+  params: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+
+rule2:
+  fun: 'cell_rule2'
+  num_sensors: 0
+  num_actions:  0
+  exp: 'plus dinspi'
+  params: [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, ]

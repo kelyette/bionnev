@@ -4,7 +4,7 @@ import src.rules.env_rules as er
 from src.environment import Environment
 
 class Simulation:
-    def __init__(self, params, wenvrule="env_rule1", wcellrule="cell_rule1"):
+    def __init__(self, params, wenvrule="env_rule2", wcellrule="cell_rule1"):
         self.update_params(params)
         self.env = Environment(params) # Initialize the environment
         self.update_rules(wenvrule, wcellrule)

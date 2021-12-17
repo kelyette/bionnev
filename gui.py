@@ -34,11 +34,11 @@ def get_mean_std(params):
 
 params = get_mean_std(params)
 
-with open("parameters/env_rules.yaml", "r") as f:
+with open("parameters/cfg_env_rules.yaml", "r") as f:
     env_rules = yaml.safe_load(f)
-default_env_rule = list(env_rules.keys())[0]
+default_env_rule = list(env_rules.keys())[1]
 
-with open("parameters/cell_rules.yaml", "r") as f:
+with open("parameters/cfg_cell_rules.yaml", "r") as f:
     cell_rules = yaml.safe_load(f)
 default_cell_rule = list(cell_rules.keys())[0]
 
@@ -70,7 +70,7 @@ def plot_loop(sim, fig):
     while True:
         sim.next()
         fig = draw_figure(window['plot'].TKCanvas, plot(fig, sim.env.get_grid(), sim.env))
-        time.sleep(0.3)
+        time.sleep(0.1)
 
 def choose_rule(rule_dict, chosen_rule, title):
     rule_left_layout = [
@@ -119,6 +119,7 @@ def change_params(params, env_rule, cell_rule):
         [sg.Column(params_left_layout), sg.Column(params_right_layout)]
     ]
     params_window = sg.Window("Parameters", params_layout, font=font)
+    changes = False
     while True:
         params_event, params_values = params_window.read()
         if params_event == sg.WIN_CLOSED or params_event == 'Exit':
