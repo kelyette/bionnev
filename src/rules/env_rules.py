@@ -24,7 +24,7 @@ def env_rule2(self):
     self.clock += 1   
     self.call_all(self.cells, self.cellrule[0], self.clock, self.pos_map)
     self.cells = [c for c in self.cells if c.alive]
-    if self.clock % self.params['regeneration_days'] == 0: 
+    if self.clock % self.params.list['regeneration_days'] == 0: 
         reproduceable_cells = [cell for cell in self.cells if cell.pos[0] >= int((self.size -1)/4)]
         new_cells = [Cell(self.params) for i in range(len(reproduceable_cells))]
         for i,c in enumerate(new_cells):
@@ -43,7 +43,7 @@ def env_rule3(self):
     reproduceable_cells = [cell for cell in self.cells if sum((cell.pos-int((self.size -1)/2))**2)<12**2]
     for cell in self.cells:
         cell.reproduceable = True if cell in reproduceable_cells else False
-    if self.clock % self.params['regeneration_days'] == 0: 
+    if self.clock % self.params.list['regeneration_days'] == 0: 
         new_cells = [Cell(self.params) for i in range(len(reproduceable_cells))]
         for i,c in enumerate(new_cells):
             setattr(c, self.cellrule[0], self.cellrule[1])

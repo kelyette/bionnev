@@ -5,10 +5,10 @@ class Environment:
     def __init__(self,params):
         self.params = params
         self.clock = 0
-        self.size = int(params["grid_size"])
-        self.ncell = params["n_cell"]
+        self.size = int(self.params.list["grid_size"])
+        self.ncell = self.params.list["n_cell"]
         self.grid = np.zeros((self.size, self.size), dtype=int)
-        self.cells = [Cell(params) for _ in range(int(params["n_cell"]))]
+        self.cells = [Cell(self.params) for _ in range(int(self.params.list["n_cell"]))]
         self.pos_map = 0
         
     def call_all(self, chosen_cells, attr, *args, **kwargs):

@@ -7,8 +7,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import PySimpleGUI as sg
 
 from src.simulation import Simulation
+from src.parameters import Params
 
 matplotlib.use('TkAgg')
+
+with open("parameters/config.yaml", "r") as f:
+    config = yaml.safe_load(f)
 
 with open("parameters/params.yaml", "r") as f:
     all_params = yaml.safe_load(f)
@@ -36,11 +40,16 @@ params = get_mean_std(params)
 
 with open("parameters/cfg_env_rules.yaml", "r") as f:
     env_rules = yaml.safe_load(f)
-default_env_rule = list(env_rules.keys())[2]
+default_env_rule_key = config['default_env_rule']
+default_env_rule = env_rules[default_env_rule_key]['fun']
 
 with open("parameters/cfg_cell_rules.yaml", "r") as f:
     cell_rules = yaml.safe_load(f)
-default_cell_rule = list(cell_rules.keys())[1]
+default_cell_rule_key = config['default_cell_rule']
+default_cell_rule = cell_rules[default_cell_rule_key]['fun']
+
+params['num_sensors'] = cell_rules[default_cell_rule_key]['num_sensors']
+params['num_actions'] = cell_rules[default_cell_rule_key]['num_actions']
 
 sg.theme('SystemDefault1')
 font = ('Helvetica', 12)
@@ -143,8 +152,8 @@ def change_params(params, env_rule, cell_rule):
 
 main_left_layout = [
     [sg.Text("Simulation Parameters", font=titlefont)],
-    [sg.Text("Enviroment rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_env_rule, font=font, key='chosen_env_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='env_rule')],
-    [sg.Text("Cell rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_cell_rule, font=font, key='chosen_cell_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='cell_rule')],
+    [sg.Text("Enviroment rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_env_rule_key, font=font, key='chosen_env_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='env_rule')],
+    [sg.Text("Cell rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=default_cell_rule_key, font=font, key='chosen_cell_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='cell_rule')],
     [sg.Text("Parameters:  ", font=font, size=(15, 1)), sg.Button("Modify", key='params')],
     [sg.Text("Controls", font=titlefont)],
     [sg.Button("Prec"), sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
@@ -158,7 +167,11 @@ main_layout = [
 window = sg.Window("Cells Evolution Simulator", main_layout, finalize=True, font=font, resizable=True, location=(20, 20))
 
 def main():
-    global params 
+    global t
+    global params
+
+    params = Params(params=params, env_rule_dict=env_rules, env_rule=default_env_rule, cell_rule_dict=cell_rules, cell_rule=default_cell_rule)
+    
     sim = Simulation(params)
     fig = draw_figure(window['plot'].TKCanvas, plot(None, None, None))
     
@@ -167,21 +180,21 @@ def main():
         if event == sg.WIN_CLOSED:
             break
         elif event == 'env_rule':
-            chosen_rule = values['chosen_env_rule']
-            chosen_rule = choose_rule(env_rules, chosen_rule, "Environment Rule Selection")
-            window.Element('chosen_env_rule').Update(value=chosen_rule)
-            sim.update_rules(new_envrule=env_rules[chosen_rule]['fun'])
+            chosen_env_rule = values['chosen_env_rule']
+            chosen_env_rule = choose_rule(env_rules, chosen_env_rule, "Environment Rule Selection")
+            window.Element('chosen_env_rule').Update(value=chosen_env_rule)
+            sim.update_rules(new_envrule=env_rules[chosen_env_rule]['fun'])
             
 
         elif event == 'cell_rule':
-            chosen_rule = values['chosen_cell_rule']
-            chosen_rule = choose_rule(cell_rules, chosen_rule, "Cell Rule Selection")
-            window.Element('chosen_cell_rule').Update(value=chosen_rule)
-            sim.update_rules(new_cellrule=cell_rules[chosen_rule]['fun'])
+            chosen_cell_rule = values['chosen_cell_rule']
+            chosen_cell_rule = choose_rule(cell_rules, chosen_cell_rule, "Cell Rule Selection")
+            window.Element('chosen_cell_rule').Update(value=chosen_cell_rule)
+            sim.update_rules(new_cellrule=cell_rules[chosen_cell_rule]['fun'])
 
         elif event == 'params':
-            params = change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
-            params = get_mean_std(params)
+            params.list = change_params(params.list, values['chosen_env_rule'], values['chosen_cell_rule'])
+            params.list = get_mean_std(params.list)
             del sim
             sim = Simulation(params)
 
@@ -193,6 +206,9 @@ def main():
             t = threading.Thread(target=plot_loop, args=(sim, fig))
             t.daemon = True
             t.start()
+            
+        elif event == 'Pause':
+            t.stop()
 
     window.close()
 
