@@ -10,24 +10,7 @@ class Params:
             params = all_params['values']
             params_exp = all_params['exp']
 
-        def get_mean_std(params):
-            params["mean_physics"] = np.array([
-                params["mean_death"],
-                params["mean_sex"],
-                params["mean_strength"],
-                params["mean_velocity"],
-            ])
-
-            params["std_physics"] = np.array([
-                params["std_death"],
-                params["std_sex"],
-                params["std_strength"],    
-                params["std_velocity"],    
-            ])
-            
-            return params
-
-        params = get_mean_std(params)
+        params = self.get_mean_std(params)
 
         with open("parameters/cfg_env_rules.yaml", "r") as f:
             env_rules = yaml.safe_load(f)
@@ -43,10 +26,11 @@ class Params:
         params['num_actions'] = cell_rules[default_cell_rule_key]['num_actions']
         
         self.list = params
-        self.env_rule_dict = env_rules 
+        self.exp = params_exp
+        self.env_rules_dict = env_rules 
         self.env_rule_key = default_env_rule_key
         self.env_rule = default_env_rule
-        self.cell_rule_dict = cell_rules
+        self.cell_rules_dict = cell_rules
         self.cell_rule_key = default_cell_rule_key
         self.cell_rule = default_cell_rule
 
@@ -58,12 +42,40 @@ class Params:
             [76, 148, 50],   # GREEN
         ])
 
+    def get_mean_std(self, params):
+        params["mean_physics"] = np.array([
+            params["mean_death"],
+            params["mean_sex"],
+            params["mean_strength"],
+            params["mean_velocity"],
+        ])
+
+        params["std_physics"] = np.array([
+            params["std_death"],
+            params["std_sex"],
+            params["std_strength"],    
+            params["std_velocity"],    
+        ])
+        
+        return params
+
+
     def update_params(self, new_params):
         self.list = new_params 
+    
+    def update_key(self, new_env_rule=None, new_cell_rule=None):
+        if new_env_rule:
+            
+            self.env_rule_key = self.env_rules_dict.keys()[self.env_rules_dict.values().index(new_env_rule)]
+        if new_cell_rule:
+            self.cell_rule_key = self.cell_rules_dict.keys()[self.cell_rules_dict.values().index(new_cell_rule)]
 
     def update_env_rule(self, new_env_rule):
         self.env_rule = new_env_rule
+        self.env_rule_key = self.update_key(new_env_rule)
         
     def update_cell_rule(self, new_cell_rule):
         self.cell_rule = new_cell_rule
-        self.list
+        self.cell_rule_key = self.update_key(new_cell_rule)
+        self.list['num_sensors'] = self.cell_rules_dict[self.cell_rule_key]['num_sensors']
+        self.list['num_actions'] = self.cell_rules_dict[self.cell_rule_key]['num_actions']

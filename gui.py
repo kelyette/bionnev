@@ -1,3 +1,4 @@
+
 import threading
 import yaml, time
 import numpy as np
@@ -13,25 +14,10 @@ matplotlib.use('TkAgg')
 
 params = Params()
 
-doLoop = False
-
 sg.theme('SystemDefault1')
 font = ('Helvetica', 12)
 titlefont = ('Helvetica', 14, "bold")
 figsize = (5, 5)
-
-def plot(fig, grid, env):
-    if fig:
-        plt.clf()
-        fig.get_tk_widget().forget()
-    if grid is None:
-        fig = matplotlib.figure.Figure(figsize=figsize)
-        fig.add_subplot(111)
-        return fig
-        
-    plt.title(f"Epoch {env.clock}")
-    plt.imshow(grid, interpolation="none", cmap="gist_ncar", vmin=0, vmax=len(params.colors))
-    return plt.gcf()
 
 def draw_figure(canvas, figure, loc=(0, 0)):
     figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
@@ -40,7 +26,7 @@ def draw_figure(canvas, figure, loc=(0, 0)):
     return figure_canvas_agg
 
 class plot_loop(threading.Thread):
-    def __init__(self, sim, window, fig):
+    def __init__(self, sim, window):
         super(plot_loop, self).__init__()
         self.__flag = threading.Event() # The flag used to pause the thread
         self.__flag.set() # Set to True
@@ -50,19 +36,34 @@ class plot_loop(threading.Thread):
         self.daemon = True
         self.sim = sim
         self.window = window
-        self.fig = fig
+        self.fig = None
+        self.fig = draw_figure(self.window['plot'].TKCanvas, self.plot(None, None))
+
+    def plot(self, grid, env):
+        if self.fig:
+            plt.clf()
+            self.fig.get_tk_widget().forget()
+            
+        if grid is None:
+            self.fig = matplotlib.figure.Figure(figsize=figsize)
+            self.fig.add_subplot(111)
+            return self.fig
+        
+        plt.title(f"Epoch {env.clock}")
+        plt.imshow(grid, interpolation="none", cmap="gist_ncar", vmin=0, vmax=len(params.colors))
+        return plt.gcf()
 
     def run(self):
         self.bool_resume = True  
         while self.__running.isSet():
             self.__flag.wait()
             self.sim.next()
-            self.fig = draw_figure(self.window['plot'].TKCanvas, plot(self.fig, self.sim.env.get_grid(), self.sim.env))
+            self.fig = draw_figure(self.window['plot'].TKCanvas, self.plot(self.sim.env.get_grid(), self.sim.env))
             time.sleep(0.1)
 
     def run_once(self):
         self.sim.next()
-        self.fig = draw_figure(self.window['plot'].TKCanvas, plot(self.fig, self.sim.env.get_grid(), self.sim.env))
+        self.fig = draw_figure(self.window['plot'].TKCanvas, self.plot(self.sim.env.get_grid(), self.sim.env))
 
     def pause(self):
         self.__flag.clear()
@@ -108,7 +109,7 @@ def choose_rule(rule_dict, chosen_rule, title):
 
 def change_params(params, env_rule, cell_rule):
     bool_params = [params.env_rules_dict[env_rule]['params'][i] + params.cell_rules_dict[cell_rule]['params'][i] for i in range(len(params.cell_rules_dict[cell_rule]['params']))]
-    needed_params = {list(params.keys())[i]: params[list(params.keys())[i]] for i in range(len(bool_params)) if bool_params[i]}
+    needed_params = {list(params.list.keys())[i]: params.list[list(params.list.keys())[i]] for i in range(len(bool_params)) if bool_params[i]}
     selected_key = list(needed_params.keys())[0]
 
     params_left_layout = [
@@ -119,14 +120,13 @@ def change_params(params, env_rule, cell_rule):
         [sg.Text("Value", font=titlefont)],
         [sg.Text("Modify:"), sg.Input(default_text=needed_params[selected_key], key='value', enable_events=True)],
         [sg.Text("Explanation", font=titlefont)],
-        [sg.Multiline(params[selected_key], size=(40, 8), key='explanation')],
+        [sg.Multiline(params.list[selected_key], size=(40, 8), key='explanation')],
         [sg.Button('Exit'), sg.Button('Save Changes')],
     ]
     params_layout = [
         [sg.Column(params_left_layout), sg.Column(params_right_layout)]
     ]
     params_window = sg.Window("Parameters", params_layout, font=font)
-    changes = False
     while True:
         params_event, params_values = params_window.read()
         if params_event == sg.WIN_CLOSED or params_event == 'Exit':
@@ -135,7 +135,7 @@ def change_params(params, env_rule, cell_rule):
         elif params_values['selected_key'][0] != selected_key:
             selected_key = params_values['selected_key'][0]
             params_window.Element('value').Update(value=needed_params[selected_key])
-            params_window.Element('explanation').Update(value=params_exp[selected_key])
+            params_window.Element('explanation').Update(value=params.exp[selected_key])
             
         elif params_values['value'] != str(needed_params[selected_key]):
             needed_params[selected_key] = float(params_values['value'])
@@ -154,7 +154,7 @@ main_left_layout = [
     [sg.Text("Cell rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=params.cell_rule_key, font=font, key='chosen_cell_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='cell_rule')],
     [sg.Text("Parameters:  ", font=font, size=(15, 1)), sg.Button("Modify", key='params')],
     [sg.Text("Controls", font=titlefont)],
-    [sg.Button("Prec"), sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
+    [sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
 ]
 main_right_layout = [
     [sg.Canvas(size=(10, 10), key="plot")],
@@ -167,11 +167,8 @@ window = sg.Window("Cells Evolution Simulator", main_layout, finalize=True, font
 def main():
     global t
     global params
-    
     sim = Simulation(params)
-    fig = draw_figure(window['plot'].TKCanvas, plot(None, None, None))
-    t = plot_loop(sim, window, fig)
-    
+    t = plot_loop(sim, window)
     while True:
         event, values = window.read()
         if event == sg.WIN_CLOSED:
@@ -189,7 +186,7 @@ def main():
             sim.update_rules(new_cellrule=params.cell_rules_dict[chosen_cell_rule]['fun'])
 
         elif event == 'params':
-            params.list = change_params(params.list, values['chosen_env_rule'], values['chosen_cell_rule'])
+            params.list = change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
             params.list = params.get_mean_std(params.list)
             del sim
             sim = Simulation(params)

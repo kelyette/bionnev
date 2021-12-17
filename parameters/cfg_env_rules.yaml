@@ -5,10 +5,10 @@ rule1:
 
 rule2:
   fun : 'env_rule2'
-  exp : 'This set of rules is very similar to rule 1: every cell that is in  a radius r of the corners can reproduce'
+  exp : 'The cells each reproduce one new cell if they are in the bottom half of the grid. The old cells will stay at their place, the new cells are randomly put in the grid'
   params : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
 
 rule3:
   fun : 'env_rule3'
-  exp : 'This set of rules is very similar to rule 1: every cell that is in  a radius r of the corners can reproduce'
+  exp : 'The cells each reproduce one new cell if they are at a distance r=10 from the center of the grid. The old cells will stay at their place, the new cells are randomly put in the grid'
   params : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
