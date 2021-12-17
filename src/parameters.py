@@ -1,10 +1,62 @@
+import yaml, numpy as np
+
 class Params:
-    def __init__(self, params, env_rule_dict, env_rule, cell_rule_dict, cell_rule):
+    def __init__(self):
+        with open("parameters/config.yaml", "r") as f:
+            config = yaml.safe_load(f)
+
+        with open("parameters/params.yaml", "r") as f:
+            all_params = yaml.safe_load(f)
+            params = all_params['values']
+            params_exp = all_params['exp']
+
+        def get_mean_std(params):
+            params["mean_physics"] = np.array([
+                params["mean_death"],
+                params["mean_sex"],
+                params["mean_strength"],
+                params["mean_velocity"],
+            ])
+
+            params["std_physics"] = np.array([
+                params["std_death"],
+                params["std_sex"],
+                params["std_strength"],    
+                params["std_velocity"],    
+            ])
+            
+            return params
+
+        params = get_mean_std(params)
+
+        with open("parameters/cfg_env_rules.yaml", "r") as f:
+            env_rules = yaml.safe_load(f)
+        default_env_rule_key = config['default_env_rule']
+        default_env_rule = env_rules[default_env_rule_key]['fun']
+
+        with open("parameters/cfg_cell_rules.yaml", "r") as f:
+            cell_rules = yaml.safe_load(f)
+        default_cell_rule_key = config['default_cell_rule']
+        default_cell_rule = cell_rules[default_cell_rule_key]['fun']
+
+        params['num_sensors'] = cell_rules[default_cell_rule_key]['num_sensors']
+        params['num_actions'] = cell_rules[default_cell_rule_key]['num_actions']
+        
         self.list = params
-        self.env_rule_dict = env_rule_dict 
-        self.env_rule = env_rule
-        self.cell_rule_dict = cell_rule_dict
-        self.cell_rule = cell_rule
+        self.env_rule_dict = env_rules 
+        self.env_rule_key = default_env_rule_key
+        self.env_rule = default_env_rule
+        self.cell_rule_dict = cell_rules
+        self.cell_rule_key = default_cell_rule_key
+        self.cell_rule = default_cell_rule
+
+        self.colors = np.array([
+            [255, 255, 255], # WHITE
+            [164, 55, 72],   # RED
+            [174, 117, 58],  # YELLOW
+            [39, 93, 108],   # BLUE
+            [76, 148, 50],   # GREEN
+        ])
 
     def update_params(self, new_params):
         self.list = new_params 
