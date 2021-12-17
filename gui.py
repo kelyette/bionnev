@@ -36,11 +36,11 @@ params = get_mean_std(params)
 
 with open("parameters/cfg_env_rules.yaml", "r") as f:
     env_rules = yaml.safe_load(f)
-default_env_rule = list(env_rules.keys())[1]
+default_env_rule = list(env_rules.keys())[2]
 
 with open("parameters/cfg_cell_rules.yaml", "r") as f:
     cell_rules = yaml.safe_load(f)
-default_cell_rule = list(cell_rules.keys())[0]
+default_cell_rule = list(cell_rules.keys())[1]
 
 sg.theme('SystemDefault1')
 font = ('Helvetica', 12)
@@ -56,7 +56,7 @@ def plot(fig, grid, env):
         fig.add_subplot(111)
         return fig
     plt.title(f"Epoch {env.clock}")
-    plt.imshow(grid, interpolation="none", cmap="GnBu")
+    plt.imshow(grid, interpolation="none", cmap="gist_ncar")
     return plt.gcf()
     
 

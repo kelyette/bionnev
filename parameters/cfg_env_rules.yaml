@@ -6,4 +6,9 @@ rule1:
 rule2:
   fun : 'env_rule2'
   exp : 'This set of rules is very similar to rule 1: every cell that is in  a radius r of the corners can reproduce'
-  params : [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ]
+  params : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+  
+rule3:
+  fun : 'env_rule3'
+  exp : 'This set of rules is very similar to rule 1: every cell that is in  a radius r of the corners can reproduce'
+  params : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]

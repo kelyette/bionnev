@@ -1,13 +1,13 @@
 values: 
   num_sim: 100
   grid_size: 32
-  num_sensors: 1
+  num_sensors: 5
   num_actions: 4
-  n_cell: 100
+  n_cell: 500
   mutation_rate: 0.001
-  regeneration_days: 32
+  regeneration_days: 20
   mean_death: 50.0
-  std_death: 5.0
+  std_death: 10.0
   mean_sex: 0.5
   std_sex: 0.1
   mean_strength: 100.0

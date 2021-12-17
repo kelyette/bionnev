@@ -17,9 +17,9 @@ def cell_rule2(self, clock, pos_map):
     self.sensors = np.array([
         1,
         np.random.random(1).item(),
-        np.sin(np.pi*clock/10).item(),
-        self.pos[0] / self.grid_size,
-        self.pos[1] / self.grid_size,
+        np.random.uniform(1),
+        int(self.pos[0] / self.grid_size),
+        int(self.pos[1] / self.grid_size),
     ])
     self.think()
     self.live()    

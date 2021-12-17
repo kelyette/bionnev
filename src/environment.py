@@ -20,7 +20,18 @@ class Environment:
 
     def get_grid(self):
         self.grid = np.zeros((self.size, self.size), dtype=int)
-        self.pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], self.cells))
+        self.pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if not cell.reproduceable)))
         rows, cols = zip(*self.pos_map)
-        self.grid[rows, cols] = 1
+        self.grid[rows, cols] = -3
+        
+        self.pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if cell.reproduceable)))
+        if self.pos_map:
+            rows, cols = zip(*self.pos_map)
+            self.grid[rows, cols] = -1
+            
+        self.pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if cell.age <= 5)))
+        if self.pos_map:
+            rows, cols = zip(*self.pos_map)
+            self.grid[rows, cols] = -2
+            
         return self.grid.copy()
