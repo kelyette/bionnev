@@ -57,13 +57,13 @@ class plot_loop(threading.Thread):
         self.bool_resume = True  
         while self.__running.isSet():
             self.__flag.wait()
-            self.sim.next()
             self.fig = draw_figure(self.window['plot'].TKCanvas, self.plot(self.sim.env.get_grid(), self.sim.env))
+            self.sim.next()
             time.sleep(0.1)
 
     def run_once(self):
-        self.sim.next()
         self.fig = draw_figure(self.window['plot'].TKCanvas, self.plot(self.sim.env.get_grid(), self.sim.env))
+        self.sim.next()
 
     def pause(self):
         self.__flag.clear()
@@ -78,7 +78,6 @@ class plot_loop(threading.Thread):
     def stop(self):
         self.__flag.set()
         self.__running.clear()
-        self.bool_resume = True
 
 def choose_rule(rule_dict, chosen_rule, title):
     rule_left_layout = [
@@ -142,10 +141,10 @@ def change_params(params, env_rule, cell_rule):
                 
         elif params_event == 'Save Changes':
             for k in list(needed_params.keys()):
-                params[k] = needed_params[k]
+                params.list[k] = needed_params[k]
             break
     params_window.close()
-    return params
+    return params.list
 
 
 main_left_layout = [
@@ -153,8 +152,12 @@ main_left_layout = [
     [sg.Text("Enviroment rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=params.env_rule_key, font=font, key='chosen_env_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='env_rule')],
     [sg.Text("Cell rule set:  ", font=font, size=(15, 1)), sg.Multiline(default_text=params.cell_rule_key, font=font, key='chosen_cell_rule', size=(15, 1), no_scrollbar=True), sg.Button("Choose", key='cell_rule')],
     [sg.Text("Parameters:  ", font=font, size=(15, 1)), sg.Button("Modify", key='params')],
-    [sg.Text("Controls", font=titlefont)],
-    [sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
+    [sg.Text("Plotting parameters")],
+    [sg.Button("Generate simulation", font=font)],
+    [sg.Frame('Controls',[
+        [sg.Button("Next"), sg.Button("Restart"), sg.Button("Pause"), sg.Button("Play")]
+    ], visible=False, key='controls', border_width=0, font=titlefont)]
+    
 ]
 main_right_layout = [
     [sg.Canvas(size=(10, 10), key="plot")],
@@ -186,10 +189,15 @@ def main():
             sim.update_rules(new_cellrule=params.cell_rules_dict[chosen_cell_rule]['fun'])
 
         elif event == 'params':
-            params.list = change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
-            params.list = params.get_mean_std(params.list)
+            change_params(params, values['chosen_env_rule'], values['chosen_cell_rule'])
+            params.get_mean_std()
             del sim
             sim = Simulation(params)
+
+        elif event == 'Generate simulation':
+            t.run_once()
+            window.Element('Generate simulation').Update(visible=False)
+            window.Element('controls').Update(visible=True)
 
         elif event == 'Next':
             t.run_once()
@@ -199,9 +207,18 @@ def main():
                 t.resume()
             else:
                 t.start()
-            
+                
         elif event == 'Pause':
             t.pause()
+        
+        elif event == 'Restart':
+            window.Element('controls').Update(visible=False)
+            window.Element('Generate simulation').Update(visible=True)
+            t.stop()
+            window.Element('plot').TKCanvas.delete('all')
+            sim = Simulation(params)
+            t = plot_loop(sim, window)
+            t.run_once()
 
     window.close()
 

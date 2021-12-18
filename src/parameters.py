@@ -10,8 +10,6 @@ class Params:
             params = all_params['values']
             params_exp = all_params['exp']
 
-        params = self.get_mean_std(params)
-
         with open("parameters/cfg_env_rules.yaml", "r") as f:
             env_rules = yaml.safe_load(f)
         default_env_rule_key = config['default_env_rule']
@@ -26,6 +24,7 @@ class Params:
         params['num_actions'] = cell_rules[default_cell_rule_key]['num_actions']
         
         self.list = params
+        self.get_mean_std()
         self.exp = params_exp
         self.env_rules_dict = env_rules 
         self.env_rule_key = default_env_rule_key
@@ -42,22 +41,20 @@ class Params:
             [76, 148, 50],   # GREEN
         ])
 
-    def get_mean_std(self, params):
-        params["mean_physics"] = np.array([
-            params["mean_death"],
-            params["mean_sex"],
-            params["mean_strength"],
-            params["mean_velocity"],
+    def get_mean_std(self):
+        self.list["mean_physics"] = np.array([
+            self.list["mean_death"],
+            self.list["mean_sex"],
+            self.list["mean_strength"],
+            self.list["mean_velocity"],
         ])
 
-        params["std_physics"] = np.array([
-            params["std_death"],
-            params["std_sex"],
-            params["std_strength"],    
-            params["std_velocity"],    
+        self.list["std_physics"] = np.array([
+            self.list["std_death"],
+            self.list["std_sex"],
+            self.list["std_strength"],    
+            self.list["std_velocity"],    
         ])
-        
-        return params
 
 
     def update_params(self, new_params):

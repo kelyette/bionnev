@@ -1,3 +1,4 @@
+import numpy as np
 import inspect
 import src.rules.cell_rules as cr
 import src.rules.env_rules as er
@@ -28,4 +29,7 @@ class Simulation:
                 c.cellrule = cellrule
 
     def next(self):
-        getattr(self.env, self.envrule[0])(self.env)
+        if np.any(self.env.cells):
+            getattr(self.env, self.envrule[0])(self.env)
+        else:
+            exit()

@@ -24,8 +24,10 @@ def env_rule2(self):
     self.clock += 1   
     self.call_all(self.cells, self.cellrule[0], self.clock, self.pos_map)
     self.cells = [c for c in self.cells if c.alive]
+    reproduceable_cells = [cell for cell in self.cells if cell.pos[0] >= int(2*(self.size -1)/3)]
+    for cell in self.cells:
+        cell.reproduceable = True if cell in reproduceable_cells else False
     if self.clock % self.params.list['regeneration_days'] == 0: 
-        reproduceable_cells = [cell for cell in self.cells if cell.pos[0] >= int((self.size -1)/4)]
         new_cells = [Cell(self.params) for i in range(len(reproduceable_cells))]
         for i,c in enumerate(new_cells):
             setattr(c, self.cellrule[0], self.cellrule[1])
@@ -55,4 +57,20 @@ def env_rule3(self):
     return 1    
 
 def env_rule4(self):
-    pass
+    if not np.any(self.cells):
+        return 0
+    self.clock += 1   
+    self.call_all(self.cells, self.cellrule[0], self.clock, self.pos_map)
+    reproduceable_cells = [cell for cell in self.cells if (sum(cell.pos)  < int(self.size/1.5))]
+    for cell in self.cells:
+        cell.reproduceable = True if cell in reproduceable_cells else False
+    if self.clock % self.params.list['regeneration_days'] == 0: 
+        new_cells = [Cell(self.params) for i in range(len(reproduceable_cells))]
+        for i,c in enumerate(new_cells):
+            setattr(c, self.cellrule[0], self.cellrule[1])
+            c.cellrule = self.cellrule
+            c.pos = np.random.uniform(0, self.size-1,2) 
+            c.brain_dna = reproduceable_cells[i].brain_dna 
+        self.cells.extend(new_cells) 
+    self.cells = [c for c in self.cells if c.alive]
+    return 1 

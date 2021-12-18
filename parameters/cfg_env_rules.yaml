@@ -12,3 +12,8 @@ rule3:
   fun : 'env_rule3'
   exp : 'The cells each reproduce one new cell if they are at a distance r=10 from the center of the grid. The old cells will stay at their place, the new cells are randomly put in the grid'
   params : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
+
+rule4:
+  fun: 'env_rule4'
+  exp: 'The cells each reproduce one new cell if they are in the bottom right corner of the screen.'
+  params: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ]
