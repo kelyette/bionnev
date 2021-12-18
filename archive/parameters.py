@@ -62,7 +62,6 @@ class Params:
     
     def update_key(self, new_env_rule=None, new_cell_rule=None):
         if new_env_rule:
-            
             self.env_rule_key = self.env_rules_dict.keys()[self.env_rules_dict.values().index(new_env_rule)]
         if new_cell_rule:
             self.cell_rule_key = self.cell_rules_dict.keys()[self.cell_rules_dict.values().index(new_cell_rule)]
