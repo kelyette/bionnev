@@ -17,17 +17,18 @@ class Environment:
         for cell in self.cells:
             cell.rule.cell_func(cell, self,  *args, **kwargs)
 
-    def get_grid(self, colors):
+    def get_grid(self, plot):
         self.grid = np.zeros((self.grid_size, self.grid_size), dtype=int)
-        self.add_type(True, lambda cell: not cell.reproduceable, 2)
-        self.add_type(True, lambda cell: cell.reproduceable, 4)
-        self.add_type(self.clock>5, lambda cell: cell.age<=5, 1)
-        return colors[self.grid.copy()]
+        
+        for rule in plot.rules:
+            self.add_type(**rule)
+            
+        return plot.colors[self.grid.copy()]
     
-    def add_type(self, show_cond, cell_cond, color):
-        if show_cond:
+    def add_type(self, show_cond, cell_cond, color_num):
+        if show_cond(self):
             pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if cell_cond(cell))))
+            
             if pos_map:
                 rows, cols = zip(*pos_map)
-                self.grid[rows, cols] = color
-        
+                self.grid[rows, cols] = color_num

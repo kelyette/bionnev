@@ -2,8 +2,8 @@ import PySimpleGUI as sg
 import numpy as np
 import tkinter as tk
 import inspect
-import src.rules.cell_rules as cr
-import src.rules.env_rules as er
+import parameters.cell_rules as cr
+import parameters.env_rules as er
 
 rgb2hex = lambda r,g,b: '#%02x%02x%02x' %(r,g,b)
 hex2rgb = lambda hex: tuple(int(hex.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
@@ -108,18 +108,18 @@ def plotting(plot):
     current_colors = plot.colors.copy()
 
     general_params_layout = sg.Tab("General",[
-        [sg.Text("Show every n frame"), sg.Input(str(plot.show_n))],
-        [sg.Text("Show every n frame"), sg.Input(str(plot.fps))],
+        [sg.Text("Show every n simulation days"), sg.Input(str(plot.show_n))],
+        [sg.Text("Frames per second"), sg.Input(str(plot.fps))],
         [sg.Text("")],
         [sg.Button("Save Changes", key='change_general')]
     ])
 
     colors_layout = sg.Tab("Colors", [
-        [sg.Text("Color 1: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[0]),size=(0,1), disabled=True, key='printcol0'), sg.Button("Choose", key='col0')],
-        [sg.Text("Color 2: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[1]),size=(0,1), disabled=True, key='printcol1'), sg.Button("Choose", key='col1')],
-        [sg.Text("Color 3: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[2]),size=(0,1), disabled=True, key='printcol2'), sg.Button("Choose", key='col2')],
-        [sg.Text("Color 4: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[3]),size=(0,1), disabled=True, key='printcol3'), sg.Button("Choose", key='col3')],
-        [sg.Text("Color 5: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[4]),size=(0,1), disabled=True, key='printcol4'), sg.Button("Choose", key='col4')],
+        [sg.Text("Color 1: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[0]),size=(1,1), disabled=True, key='printcol0'), sg.Button("Choose", key='col0')],
+        [sg.Text("Color 2: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[1]),size=(1,1), disabled=True, key='printcol1'), sg.Button("Choose", key='col1')],
+        [sg.Text("Color 3: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[2]),size=(1,1), disabled=True, key='printcol2'), sg.Button("Choose", key='col2')],
+        [sg.Text("Color 4: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[3]),size=(1,1), disabled=True, key='printcol3'), sg.Button("Choose", key='col3')],
+        [sg.Text("Color 5: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[4]),size=(1,1), disabled=True, key='printcol4'), sg.Button("Choose", key='col4')],
         [sg.Text("")],
         [sg.Text("If you want to change the mapping of type of colors to type of cells, please change 'plotting.py' script. ")],
         [sg.Text("")],
@@ -178,5 +178,6 @@ def plotting(plot):
 
         if plot_event == 'change_colors' or plot_event == 'change_general':
             plot.colors = np.array(current_colors)
+            break
         
     plot_window.close()

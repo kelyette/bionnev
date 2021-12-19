@@ -1,7 +1,7 @@
 import numpy as np
 import inspect
-import src.rules.cell_rules as cr
-import src.rules.env_rules as er
+import parameters.cell_rules as cr
+import parameters.env_rules as er
 from src.environment import Environment
 
 class Simulation:

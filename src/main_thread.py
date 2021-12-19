@@ -1,5 +1,5 @@
-from parameters.plotting import Plot
 from src.simulation import Simulation
+from parameters import plot_rules
 import threading, time
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -15,16 +15,17 @@ def draw_figure(canvas, figure, loc=(0, 0)):
     return figure_canvas_agg
     
 class MainThread(threading.Thread):
-    def __init__(self, envrule, cellrule, *args, **kwargs):
+    def __init__(self, envrule, cellrule, plotrule, *args, **kwargs):
         super(MainThread, self).__init__(*args, **kwargs)
         self.__flag = threading.Event() # The flag used to pause the thread
         self.__flag.set() # Set to True
         self.__running = threading.Event() # Used to stop the thread identification
         self.__running.set() # Set running to True
         self.daemon = True
+        self.bool_resume = False
         self.sim = Simulation(envrule, cellrule)
         self.sg_init()
-        self.plot_stgs = Plot()
+        self.plot_stgs = getattr(plot_rules, plotrule)()
         
     def sg_init(self):
         sg.theme('SystemDefault1')
@@ -33,7 +34,7 @@ class MainThread(threading.Thread):
         self.figsize = (20, 20)
         self.fig = None
         menu_layout = [
-            ["Simulation", ["Next", "Launch"]],
+            ["Simulation", ["Next", "Pause", "Launch"]],
             ["Edit Simulation", ["Parameters", "Environment Rule", "Cells Rule"]],
             ["Settings", ["Plotting", "Defaults"]],
         ]
@@ -57,23 +58,29 @@ class MainThread(threading.Thread):
             return self.fig
         
         plt.title(f"Epoch {self.sim.env.clock}")
-        plt.imshow(self.sim.env.get_grid(self.plot_stgs.colors.copy()), interpolation="none", cmap="gist_ncar", vmin=0, vmax=len(self.plot_stgs.colors.copy()))
+        plt.imshow(self.sim.env.get_grid(self.plot_stgs), interpolation="none", cmap="gist_ncar", vmin=0, vmax=len(self.plot_stgs.colors.copy()))
         return plt.gcf()
     
     def sg_change_params(self):
         pass
-    
+
+    def next(self):
+        if not self.sim.env.clock % self.plot_stgs.show_n:
+            self.fig = draw_figure(self.window['plot'].TKCanvas, self.sg_plot())
+        self.sim.next()
+
+    def launch(self):
+        if self.bool_resume:
+            self.resume()
+        else:
+            self.start()
+
     def run(self):
         self.bool_resume = True  
         while self.__running.isSet():
             self.__flag.wait()
-            self.fig = draw_figure(self.window['plot'].TKCanvas, self.sg_plot())
-            self.sim.next()
+            self.next()
             time.sleep(1/min(self.plot_stgs.fps, 30))
-
-    def run_once(self):
-        self.fig = draw_figure(self.window['plot'].TKCanvas, self.sg_plot())
-        self.sim.next()
 
     def pause(self):
         self.__flag.clear()
@@ -88,5 +95,3 @@ class MainThread(threading.Thread):
     def stop(self):
         self.__flag.set()
         self.__running.clear()
-
-        

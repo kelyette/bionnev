@@ -1,6 +1,6 @@
 import numpy as np
 from src.cell import Cell
-from src.rules.rule_classes import EnvRule
+from src.rule_classes import EnvRule
 
 class Rule1(EnvRule):
     def __init__(self):
@@ -50,7 +50,7 @@ class Rule2(EnvRule):
         if env.clock % env.params['regeneration_days'] == 0: 
             new_cells = [Cell(env.envrule, env.cellrule) for i in range(len(reproduceable_cells))]
             for i,c in enumerate(new_cells):
-                c.pos = np.random.uniform(0, env.size-1,2) 
+                c.pos = np.random.uniform(0, env.grid_size-1,2) 
                 c.brain_dna = reproduceable_cells[i].brain_dna 
             env.cells.extend(new_cells) 
         return 1
