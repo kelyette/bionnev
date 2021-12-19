@@ -26,6 +26,7 @@ class Environment:
         return plot.colors[self.grid.copy()]
     
     def add_type(self, show_cond, cell_cond, color_num):
+        show_cond = lambda _: True if show_cond == True else show_cond
         if show_cond(self):
             pos_map = self.get_pos_map(cell_cond)
             if pos_map:
@@ -52,14 +53,16 @@ class Environment:
     def next(self, *args, **kwargs):
         if not np.any(self.cells):
             return 0
-        self.clock += 1 
-        if self.envrule.__cell_rule_first:
+        self.clock += 1
+        
+        if self.envrule._cell_rule_first:
             self.call_cell_rules()
             self.cells = [c for c in self.cells if c.alive]
-            self.envrule.env_func(self, *args, **kwargs)
+            self.envrule.env_func(self)
             
         else:
-            self.envrule.env_func(self,  *args, **kwargs)            
+            env_func_args = (self, )
+            self.envrule.env_func(self)            
             self.call_cell_rules()
             self.cells = [c for c in self.cells if c.alive]
         
