@@ -112,15 +112,3 @@ class EnvRule:
             env.cells = [c for c in env.cells if c.alive]
         
         return 1
-        
-    # def spawn_cells(self, parent_cells, mapping):
-    #     new_cells = [Cell(self.params) for i in range(len(parent_cells))]
-    #     for i, c in enumerate(new_cells): 
-    #         setattr(c, self.cellrule[0], self.cellrule[1])
-    #         c.cellrule = self.cellrule
-            
-    #         for m in mapping.keys():
-    #             setattr(c, m, mapping[m](i))
-                
-    #     self.cells.extend(new_cells)
-        # mapping = {'brain_dna': lambda i: i }

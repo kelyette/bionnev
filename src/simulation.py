@@ -30,6 +30,6 @@ class Simulation:
 
     def next(self):
         if np.any(self.env.cells):
-            self.env.envrule.next(self.env)
+            self.env.next(self.env)
         else:
             exit()

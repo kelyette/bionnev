@@ -19,7 +19,7 @@ default_cellrule = config["default_cellrule"]
 default_plotrule = config["default_plotrule"]
 
 main = MainThread(default_envrule, default_cellrule, default_plotrule)
-
+main.next()
 while True:
     try:
         event, values = main.window.read()

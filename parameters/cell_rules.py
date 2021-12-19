@@ -30,7 +30,7 @@ class Rule1(CellRule):
 class Rule2(CellRule):
     def __init__(self):
         self.display_name = "Changing Move"
-        self.exp = "The cells have the following parameters: 1 (constant), . They only have a constant input of 1. Their actions is to either move left, right, north or south."    
+        self.exp = "The cells have the following parameters: 1 (constant). They only have a constant input of 1. Their actions is to either move left, right, north or south."    
         self.phys_attr = ['death','velocity']
         self.params_dict = {
             "mean_death": {"val": 25, "exp": "Mean death age (one unit of age is one simulation days)."},
@@ -46,7 +46,7 @@ class Rule2(CellRule):
     
     def cell_func(_, cell, env):
         move = np.rint((cell.actions[:2].ravel() - cell.actions[2:4].ravel()) * cell.velocity)
-        cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
+        cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size) - (move + cell.pos < 0) * 2*((move + cell.pos))
         
         cell.sensors = np.array([
             1.0,
@@ -54,6 +54,36 @@ class Rule2(CellRule):
             np.sin(2* np.pi * env.clock/cell.osc_cycle).item(),
             cell.pos[0] / env.grid_size,
             cell.pos[1] / env.grid_size,
+        ])
+        
+        cell.think()
+        cell.live()
+
+class Rule3(CellRule):
+    def __init__(self):
+        self.display_name = 'Rule3'
+        self.exp = ''
+        self.phys_attr = ['death']
+        self.params_dict = {
+            "mean_death": {"val": 50, "exp": "Mean death age (one unit of age is one simulation days)."},
+            "std_death": {"val": 2, "exp": "Standard deviation of age."},
+            'strength': {'val': 0, 'exp': 'Initial strength'}
+        }
+        self.num_sensors = 1
+        self.num_actions = 4
+        
+        super().__init__()
+        
+    def cell_func(_, cell, env):
+        move = np.rint(cell.actions[:2].ravel() - cell.actions[2:4].ravel())
+        last_pos = cell.pos.copy()
+        cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
+        
+        if (cell.pos != last_pos).any():
+            cell.strength += 1
+        
+        cell.sensors = np.array([
+            1.0
         ])
         
         cell.think()
