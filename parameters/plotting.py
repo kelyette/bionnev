@@ -9,4 +9,7 @@ class Plot:
             [39, 93, 108],   # BLUE
             [76, 148, 50],   # GREEN
         ])
+        self.fps = 100
+
+
 

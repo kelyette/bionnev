@@ -7,18 +7,18 @@ class Environment:
         self.cellrule = cellrule
         self.params = envrule.params
         self.clock = 0
-        self.size = self.params["grid_size"]
+        self.grid_size = self.params["grid_size"]
         self.num_cells = self.params["num_cells"]
-        self.grid = np.zeros((self.size, self.size), dtype=int)
+        self.grid = np.zeros((self.grid_size, self.grid_size), dtype=int)
         self.cells = [Cell(self.envrule, self.cellrule) for _ in range(self.num_cells)]
         self.pos_map = 0
         
     def call_cell_rules(self, *args, **kwargs):
         for cell in self.cells:
-            cell.rule.cell_func(cell, *args, **kwargs)
+            cell.rule.cell_func(cell, self,  *args, **kwargs)
 
     def get_grid(self, colors):
-        self.grid = np.zeros((self.size, self.size), dtype=int)
+        self.grid = np.zeros((self.grid_size, self.grid_size), dtype=int)
         self.add_type(True, lambda cell: not cell.reproduceable, 2)
         self.add_type(True, lambda cell: cell.reproduceable, 4)
         self.add_type(self.clock>5, lambda cell: cell.age<=5, 1)

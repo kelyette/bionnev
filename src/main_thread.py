@@ -30,7 +30,7 @@ class MainThread(threading.Thread):
         sg.theme('SystemDefault1')
         self.font = ('Helvetica', 12)
         self.titlefont = ('Helvetica', 14, "bold")
-        self.figsize = (10, 10)
+        self.figsize = (20, 20)
         self.fig = None
         menu_layout = [
             ["Simulation", ["Next", "Launch"]],
@@ -69,7 +69,7 @@ class MainThread(threading.Thread):
             self.__flag.wait()
             self.fig = draw_figure(self.window['plot'].TKCanvas, self.sg_plot())
             self.sim.next()
-            time.sleep(0.1)
+            time.sleep(1/min(self.plot_stgs.fps, 30))
 
     def run_once(self):
         self.fig = draw_figure(self.window['plot'].TKCanvas, self.sg_plot())

@@ -1,7 +1,10 @@
 import PySimpleGUI as sg
+import tkinter as tk
 import inspect
 import src.rules.cell_rules as cr
 import src.rules.env_rules as er
+
+rgb2hex = lambda r,g,b: '#%02x%02x%02x' %(r,g,b)
 
 sg.theme('SystemDefault1')
 font = ('Helvetica', 12)
@@ -98,3 +101,32 @@ def change_params(sim):
                     sim.env.cellrule.params[k] = params[k]
             break
     params_window.close()
+
+def plotting(plot):
+    
+    general_params_layout = sg.Tab("General",[[sg.Text("Oui")]])
+
+    colors_layout = sg.Tab("Colors", [
+        [sg.Text("Color 1: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[0]),size=(0,1), disabled=True, key='printcol1'), sg.Button("Choose", key='col1')],
+        [sg.Text("Color 2: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[1]),size=(0,1), disabled=True, key='printcol2'), sg.Button("Choose", key='col2')],
+        [sg.Text("Color 3: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[2]),size=(0,1), disabled=True, key='printcol3'), sg.Button("Choose", key='col3')],
+        [sg.Text("Color 4: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[3]),size=(0,1), disabled=True, key='printcol4'), sg.Button("Choose", key='col4')],
+        [sg.Text("Color 5: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[4]),size=(0,1), disabled=True, key='printcol5'), sg.Button("Choose", key='col5')],
+
+    ])
+    plot_layout = [[
+        sg.TabGroup([[general_params_layout, colors_layout]])
+    ]]
+    plot_window = sg.Window("Plotting Parameters", plot_layout, font=font)
+    while True:
+        plot_event, plot_values = plot_window.read()
+
+        if plot_event == sg.WIN_CLOSED:
+            break
+
+        if plot_event == 'col1':
+            col1 = tk.colorchooser.askcolor(parent=plot_window['col1'].ParentForm.TKroot, color=rgb2hex(*plot.colors[0]))
+        if plot_event == 'col2':
+            colors = tk.colorchooser.askcolor(parent=plot_window['col1'].ParentForm.TKroot, color=rgb2hex(*plot.colors[1]))
+        
+    plot_window.close()

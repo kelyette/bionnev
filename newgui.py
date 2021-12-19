@@ -40,6 +40,9 @@ while True:
 
     if event == 'Cells Rule':
         new_cellrule = opt_win.choose_rule(chosen_cell_rule=main.sim.cellrule)
-        main.sim.update_rules(new_cellrule=new_cellrule)    
+        main.sim.update_rules(new_cellrule=new_cellrule) 
+
+    if event == 'Plotting':
+        opt_win.plotting(main.plot_stgs)
 
 main.window.close()
