@@ -41,7 +41,7 @@ class MainThread(threading.Thread):
         
         layout = [
             [sg.MenuBar(menu_layout)],
-            [sg.Canvas(size=(16,16), key='plot')],
+            [sg.Canvas(size=(1200, 1200), key='plot')],
         ]
         
         self.window = sg.Window("Cell simulation", layout, font=self.font, resizable=True, finalize=True, location=(0, 0))
