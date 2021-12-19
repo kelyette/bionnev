@@ -131,7 +131,6 @@ class Rule4(EnvRule):
         
     def env_func(_, env):
         reproduceable_cells = [cell for cell in env.cells if cell.strength >= env.params['min_strength']]
-        for 
 
         for cell in env.cells:
             cell.reproduceable = True if cell in reproduceable_cells else False

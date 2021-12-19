@@ -15,8 +15,8 @@ class Rule1(Plot):
         self.show_n = 1
         self.fps = 100
         self.rules = [
-            {'show_cond': None, 'cell_cond': lambda cell: not cell.reproduceable, 'color_num': 2},
-            {'show_cond': None, 'cell_cond': lambda cell: cell.reproduceable, 'color_num': 4},
+            {'show_cond': True, 'cell_cond': lambda cell: not cell.reproduceable, 'color_num': 2},
+            {'show_cond': True, 'cell_cond': lambda cell: cell.reproduceable, 'color_num': 4},
             {'show_cond': lambda env: env.clock > 5, 'cell_cond': lambda cell: cell.age <= 5, 'color_num': 1},
         ]
         super().__init__()

@@ -77,7 +77,7 @@ class CellRule:
 class EnvRule:
     def __init__(self):
         if hasattr(self,'display_name') and hasattr(self,'exp') and  hasattr(self,'params_dict'):
-            self.__cell_rule_first = True
+            self._cell_rule_first = False
             self.__class__.params = {key: self.params_dict[key]["val"] for key in self.params_dict.keys()}
             self.__class__.params_exp = {key: self.params_dict[key]["exp"] for key in self.params_dict.keys()}
             self.check_env_function()
@@ -101,7 +101,7 @@ class EnvRule:
         if not np.any(env.cells):
             return 0
         env.clock += 1 
-        if self.__cell_rule_first:
+        if self._cell_rule_first:
             env.call_cell_rules()
             env.cells = [c for c in env.cells if c.alive]
             env.envrule.env_func(env, *args, **kwargs)
