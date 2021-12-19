@@ -39,7 +39,7 @@ class Rule2(CellRule):
             "std_velocity": {"val": 0.3, "exp": "Standard deviaiton of the velocity of the cells."},
             "osc_cycle": {"val": 0.3, "exp": "Number of time frames for a full oscillatory cycle"}
         }
-        self.num_sensors = 3
+        self.num_sensors = 5
         self.num_actions = 4
 
         super().__init__()

@@ -1,10 +1,12 @@
 import PySimpleGUI as sg
+import numpy as np
 import tkinter as tk
 import inspect
 import src.rules.cell_rules as cr
 import src.rules.env_rules as er
 
 rgb2hex = lambda r,g,b: '#%02x%02x%02x' %(r,g,b)
+hex2rgb = lambda hex: tuple(int(hex.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
 
 sg.theme('SystemDefault1')
 font = ('Helvetica', 12)
@@ -103,15 +105,25 @@ def change_params(sim):
     params_window.close()
 
 def plotting(plot):
-    
-    general_params_layout = sg.Tab("General",[[sg.Text("Oui")]])
+    current_colors = plot.colors.copy()
+
+    general_params_layout = sg.Tab("General",[
+        [sg.Text("Show every n frame"), sg.Input(str(plot.show_n))],
+        [sg.Text("Show every n frame"), sg.Input(str(plot.fps))],
+        [sg.Text("")],
+        [sg.Button("Save Changes", key='change_general')]
+    ])
 
     colors_layout = sg.Tab("Colors", [
-        [sg.Text("Color 1: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[0]),size=(0,1), disabled=True, key='printcol1'), sg.Button("Choose", key='col1')],
-        [sg.Text("Color 2: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[1]),size=(0,1), disabled=True, key='printcol2'), sg.Button("Choose", key='col2')],
-        [sg.Text("Color 3: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[2]),size=(0,1), disabled=True, key='printcol3'), sg.Button("Choose", key='col3')],
-        [sg.Text("Color 4: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[3]),size=(0,1), disabled=True, key='printcol4'), sg.Button("Choose", key='col4')],
-        [sg.Text("Color 5: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[4]),size=(0,1), disabled=True, key='printcol5'), sg.Button("Choose", key='col5')],
+        [sg.Text("Color 1: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[0]),size=(0,1), disabled=True, key='printcol0'), sg.Button("Choose", key='col0')],
+        [sg.Text("Color 2: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[1]),size=(0,1), disabled=True, key='printcol1'), sg.Button("Choose", key='col1')],
+        [sg.Text("Color 3: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[2]),size=(0,1), disabled=True, key='printcol2'), sg.Button("Choose", key='col2')],
+        [sg.Text("Color 4: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[3]),size=(0,1), disabled=True, key='printcol3'), sg.Button("Choose", key='col3')],
+        [sg.Text("Color 5: "), sg.Multiline("", background_color=rgb2hex(*plot.colors[4]),size=(0,1), disabled=True, key='printcol4'), sg.Button("Choose", key='col4')],
+        [sg.Text("")],
+        [sg.Text("If you want to change the mapping of type of colors to type of cells, please change 'plotting.py' script. ")],
+        [sg.Text("")],
+        [sg.Button("Save Changes", key='change_colors')]
 
     ])
     plot_layout = [[
@@ -122,11 +134,49 @@ def plotting(plot):
         plot_event, plot_values = plot_window.read()
 
         if plot_event == sg.WIN_CLOSED:
+            txt = 'Are you sure? \n'
+            color_change = False
+            for i in range(len(plot.colors)):
+                if (current_colors[i] != plot.colors[i]).any():
+                    if color_change == False:
+                        color_change = True
+                        txt += 'Colors '
+                    txt += str(i) + ', '
+            if color_change ==True:
+                txt = txt[:-2]
+                txt += ' have changed without being saved.\n'
+            param_change = False
+            if color_change or param_change:
+                sg.popup_ok_cancel(txt, title='Unsaved changes')
             break
 
+
+        if plot_event == 'col0':
+            col0 = tk.colorchooser.askcolor(parent=plot_window['col0'].ParentForm.TKroot, color=rgb2hex(*plot.colors[0]))
+            plot_window['printcol0'].Widget.configure(background=rgb2hex(*col0[0]))
+            current_colors[0] = col0[0]
+
         if plot_event == 'col1':
-            col1 = tk.colorchooser.askcolor(parent=plot_window['col1'].ParentForm.TKroot, color=rgb2hex(*plot.colors[0]))
+            col1 = tk.colorchooser.askcolor(parent=plot_window['col1'].ParentForm.TKroot, color=rgb2hex(*plot.colors[1]))
+            plot_window['printcol1'].Widget.configure(background=rgb2hex(*col1[0]))
+            current_colors[1] = col1[0]
+
         if plot_event == 'col2':
-            colors = tk.colorchooser.askcolor(parent=plot_window['col1'].ParentForm.TKroot, color=rgb2hex(*plot.colors[1]))
+            col2 = tk.colorchooser.askcolor(parent=plot_window['col2'].ParentForm.TKroot, color=rgb2hex(*plot.colors[2]))
+            plot_window['printcol2'].Widget.configure(background=rgb2hex(*col2[0]))
+            current_colors[2] = col2[0]
+
+        if plot_event == 'col3':
+            col3 = tk.colorchooser.askcolor(parent=plot_window['col3'].ParentForm.TKroot, color=rgb2hex(*plot.colors[3]))
+            plot_window['printcol3'].Widget.configure(background=rgb2hex(*col3[0]))
+            current_colors[3] = col3[0]
+
+        if plot_event == 'col4':
+            col4 = tk.colorchooser.askcolor(parent=plot_window['col4'].ParentForm.TKroot, color=rgb2hex(*plot.colors[4]))
+            plot_window['printcol4'].Widget.configure(background=rgb2hex(*col4[0]))
+            current_colors[4] = col4[0]
+
+        if plot_event == 'change_colors' or plot_event == 'change_general':
+            plot.colors = np.array(current_colors)
         
     plot_window.close()
