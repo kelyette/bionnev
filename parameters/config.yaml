@@ -1,2 +1,3 @@
 default_envrule: 'Rule1'
 default_cellrule: 'Rule1'
+plotting: 'oui'

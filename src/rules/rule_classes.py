@@ -18,21 +18,19 @@ class EnvRule:
     def update_defaults(self):
         pass
     
-    def next(self, *args, **kwargs):
-        if not np.any(self.cells):
+    def next(self, env, *args, **kwargs):
+        if not np.any(env.cells):
             return 0
-        
-        self.clock += 1 
+        env.clock += 1 
         if self.__cell_rule_first:
-            # self.call_all(self.cells, self.cellrule[0])
-            self.cells = [c for c in self.cells if c.alive]
-            self.env_func(*args, **kwargs)
+            env.call_cell_rules()
+            env.cells = [c for c in env.cells if c.alive]
+            env.envrule.env_func(env, *args, **kwargs)
             
         else:
-            self.env_func()            
-            # self.call_all(self.cells, self.cellrule[0], self.clock, self.pos_map)
-            self.cells = [c for c in self.cells if c.alive]
-        
+            env.envrule.env_func(env,  *args, **kwargs)            
+            env.call_cell_rules()
+            env.cells = [c for c in env.cells if c.alive]
         
         return 1
         

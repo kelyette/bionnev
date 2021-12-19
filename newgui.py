@@ -1,4 +1,3 @@
-import threading
 import time, yaml
 import numpy as np
 import matplotlib
@@ -8,7 +7,7 @@ import PySimpleGUI as sg
 
 from src.main_thread import MainThread
 from src.simulation import Simulation
-from src.parameters import Params
+import src.option_windows as opt_win
 
 matplotlib.use('TkAgg')
 
@@ -18,22 +17,6 @@ with open("parameters/config.yaml", "r") as f:
 default_envrule = config["default_envrule"]
 default_cellrule = config["default_cellrule"]
 
-sg.theme('SystemDefault1')
-font = ('Helvetica', 12)
-titlefont = ('Helvetica', 14, "bold")
-figsize = (50, 50)
-menu_layout = [
-    ["Simulation", ["Launch Simulation"]],
-    ["Edit Simulation", ["Params", "Environment", "Cells"]],
-    ["Plotting"],
-    ["Defaults"],
-]
-
-layout = [
-   [sg.MenuBar(menu_layout)],
-   [sg.Canvas(canvas=None)],
-]
-
 main = MainThread(default_envrule, default_cellrule)
 
 while True:
@@ -42,4 +25,21 @@ while True:
     if event == sg.WIN_CLOSED:
         break
     
+    if event == 'Next' or event == 'right':
+        main.run_once()
+
+    if event == 'Launch':
+        main.start()
+
+    if event == 'Parameters':
+        new_params = opt_win.change_params(main.sim) 
+
+    if event == 'Environment Rule':
+        new_envrule = opt_win.choose_rule(chosen_env_rule=main.sim.envrule)
+        main.sim.update_rules(new_envrule=new_envrule)
+
+    if event == 'Cells Rule':
+        new_cellrule = opt_win.choose_rule(chosen_cell_rule=main.sim.cellrule)
+        main.sim.update_rules(new_cellrule=new_cellrule)    
+
 main.window.close()
