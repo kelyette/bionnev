@@ -33,3 +33,7 @@ class Simulation:
             self.env.next(self.env)
         else:
             exit()
+
+    def restart(self):
+        self.env = Environment(self.envrule, self.cellrule)
+        self.update_rules(new_envrule=self.envrule, new_cellrule=self.cellrule)
