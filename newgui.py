@@ -23,27 +23,28 @@ class GUI:
     def init_window(self):
         self.root = tk.Tk()
         self.root.title("Cell Simulation")
-        self.frm_top = tk.Frame()
-        self.frm_stats = tk.Frame(master=self.frm_top)
-        self.frm_plot = tk.Frame(master=self.frm_top)
-        self.frm_controls = tk.Frame()
+        self.frm_left = tk.Frame()
+        self.frm_right = tk.Frame()
+
+        
+        self.lbl_stats = []
+        for i,stat in enumerate(list(self.plot_stgs.stats.keys())):
+            self.lbl_stats.append(tk.Label(text=f"{stat}: /", master=self.frm_left))
+            self.lbl_stats[i].pack(side=tk.TOP, anchor=tk.NW)
+
         self.fig = Figure()
         self.init_plot()
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frm_right)
         
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frm_plot)
+        self.btn_launch = tk.Button(text='Launch', command=self.launch, master=self.frm_left)
+        self.btn_pause = tk.Button(text='Pause',command=self.pause, master=self.frm_left)
+        self.btn_next = tk.Button(text='Next', master=self.frm_left)
         
-        self.btn_launch = tk.Button(text='Launch', command=self.launch, master=self.frm_controls)
-        self.btn_pause = tk.Button(text='Pause',command=self.pause, master=self.frm_controls)
-        self.btn_next = tk.Button(text='Next', master=self.frm_controls)
-        
-    
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.btn_pause.pack(side=tk.LEFT)
-        self.btn_launch.pack(side=tk.LEFT)
-        self.frm_stats.pack(side=tk.LEFT)
-        self.frm_plot.pack(side=tk.RIGHT)
-        self.frm_top.pack(side=tk.TOP)
-        self.frm_controls.pack(side=tk.BOTTOM, expand=True)
+        self.btn_pause.pack(side=tk.LEFT, anchor=tk.S)
+        self.btn_launch.pack(side=tk.LEFT, anchor=tk.S)
+        self.frm_left.pack(side=tk.LEFT)
+        self.frm_right.pack(side=tk.RIGHT)
 
     def init_plot(self):
         self.ax = self.fig.add_subplot(111)
@@ -51,13 +52,17 @@ class GUI:
         self.ax.set_xticks([])
         self.ax.set_yticks([])
 
-
     def updatefig(self, i):
         if (not i % self.plot_stgs.show_n) and (not self.paused):
             self.sim.next()
+            self.update_stats()
         self.frame.set_array(self.sim.env.get_grid(self.plot_stgs))
         return self.frame, 
     
+    def update_stats(self):
+        for i, stat in enumerate(list(self.plot_stgs.stats.keys())):
+            self.lbl_stats[i].config(text=f"{stat}: {self.plot_stgs.stats[stat](self.sim.env):0.{self.plot_stgs.stats_pres}f}")
+
     def start(self):
         self.started = True
         self.launched = False

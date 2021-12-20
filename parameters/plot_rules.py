@@ -19,7 +19,9 @@ class Rule1(Plot):
             {'show_cond': True, 'cell_cond': lambda cell: cell.reproduceable, 'color_num': 4},
             {'show_cond': lambda env: env.clock > 5, 'cell_cond': lambda cell: cell.age <= 5, 'color_num': 1},
         ]
-        self.stats = [
-            {''}
-        ]
+        self.stats = {
+            'Simulation day': lambda env: env.clock,
+            'Number of cells': lambda env: len(env.cells),
+            'Mean age' : lambda env: sum([cell.age/len(env.cells) for cell in env.cells])
+        }
         super().__init__()
