@@ -22,25 +22,31 @@ class Environment:
         
         for rule in plot.rules:
             self.add_type(**rule)
-        
+            
         return plot.colors[self.grid.copy()]
     
     def add_type(self, show_cond, cell_cond, color_num):
-        show_cond = lambda _: True if show_cond == True else show_cond
+        show_cond = lambda _: show_cond if isinstance(show_cond, bool) else show_cond # Turn show_cond into a function
+        
         if show_cond(self):
-            pos_map = self.get_pos_map(cell_cond)
+            pos_map = self.get_pos_map(cell_cond=cell_cond, remove_duplicates=True)
             if pos_map:
                 rows, cols = zip(*pos_map)
                 self.grid[rows, cols] = color_num
 
-    def get_pos_map(self, cond=True, bind_cell=False):
-        cond = lambda _: True if cond == True else cond
-        if not bind_cell:
-            pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if cond(cell))))
+    def get_pos_map(self, cell_cond=True, bind_cell=False, remove_duplicates=False):
+        cell_cond = lambda _: cell_cond if isinstance(cell_cond, bool) else cell_cond
+        
+        if bind_cell:
+            pos_map = list(map(lambda cell: [cell, [int(cell.pos[0]), int(cell.pos[1])]], (cell for cell in self.cells if cell_cond(cell))))
         else:
-            pos_map = list(map(lambda cell: [cell, [int(cell.pos[0]), int(cell.pos[1])]], (cell for cell in self.cells if cond(cell))))
+            pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if cell_cond(cell))))
    
-        return pos_map
+        np_pos_map = np.array(pos_map)
+        np_pos_map_wo_dupe = np.unique(np_pos_map, axis=0)
+        pos_map_wo_dupe = list(map(lambda array: list(array), np_pos_map_wo_dupe))
+
+        return pos_map_wo_dupe if remove_duplicates else pos_map
     
     def get_interacting_cells(self, cond=True, radius=0):
         pos_map = self.get_pos_map(cond,bind_cell=True)

@@ -46,7 +46,7 @@ class Rule2(CellRule):
     
     def cell_func(_, cell, env):
         move = np.rint((cell.actions[:2].ravel() - cell.actions[2:4].ravel()) * cell.velocity)
-        cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size) - (move + cell.pos < 0) * 2*((move + cell.pos))
+        cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
         
         cell.sensors = np.array([
             1.0,

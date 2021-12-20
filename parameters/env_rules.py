@@ -2,7 +2,7 @@ import numpy as np
 from src.cell import Cell
 from src.rule_classes import EnvRule
 
-class Rule1(EnvRule):
+class Rule0(EnvRule):
     def __init__(self):
         self.display_name = "Simple rectangle overlap"
         self.exp = "The cells each reproduce one new cell if they are a subrectangle of the grid (can be chosen to be any). Cells can have the same position. The new cells inherit the exact same brain_dna as their parent. Every new cell is then randomly put in the grid. "    
@@ -17,7 +17,7 @@ class Rule1(EnvRule):
         super().__init__()
         
     def env_func(_, env):
-        reproduceable_cells = [cell for cell in env.cells if env.params['bottom']* cell.pos[env.params['horizontal']] >= env.params['bottom'] *int((env.grid_size-1)*env.params['percent_grid'])]
+        reproduceable_cells = [cell for cell in env.cells if cell.pos[0] <= int(env.grid_size/4)]
         for cell in env.cells:
             cell.reproduceable = True if cell in reproduceable_cells else False
 
