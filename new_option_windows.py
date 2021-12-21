@@ -31,4 +31,3 @@ class Settings:
         # selected_key = list(params.keys())[0]
 
     
-settings = Settings(None, None, None)
