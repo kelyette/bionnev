@@ -1,4 +1,3 @@
-import yaml
 import tkinter as tk
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
@@ -7,14 +6,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from parameters import plot_rules
 from src.simulation import Simulation
 
-with open("parameters/config.yaml", "r") as f:
-    config = yaml.safe_load(f)
-    
-default_envrule = config["default_envrule"]
-default_cellrule = config["default_cellrule"]
-default_plotrule = config["default_plotrule"]
-
-class GUI:
+class Gui:
     def __init__(self, default_envrule, default_cellrule, default_plotrule):
         self.sim = Simulation(default_envrule, default_cellrule)
         self.plot_stgs = getattr(plot_rules, default_plotrule)()
@@ -75,20 +67,15 @@ class GUI:
             if self.started:
                 self.canvas.draw_idle()
                 self.ani = animation.FuncAnimation(self.fig, self.updatefig, interval=self.plot_stgs.fps, blit=False, repeat=True)
-            self.btn_launch.config(text='Restart')
+            self.btn_launch.config(text='Reset')
             self.ani.resume()  
         else: 
+            self.sim.restart()
             self.btn_launch.config(text='Launch')
             self.ani.pause()
-            self.sim.restart()
-
+            
+            
     def pause(self):
         self.paused ^= True
         button_txt = 'Resume' if self.paused else 'Pause'
         self.btn_pause.config(text=button_txt)
-
-
-
-gui = GUI(default_envrule, default_cellrule, default_plotrule)
-
-gui.start()

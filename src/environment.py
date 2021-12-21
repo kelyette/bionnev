@@ -26,8 +26,8 @@ class Environment:
         return plot.colors[self.grid.copy()]
     
     def add_type(self, show_cond, cell_cond, color_num):
-        show_cond = lambda _: show_cond if isinstance(show_cond, bool) else show_cond # Turn show_cond into a function
-        
+        if isinstance(show_cond, bool):
+            show_cond = lambda _ : show_cond
         if show_cond(self):
             pos_map = self.get_pos_map(cell_cond=cell_cond, remove_duplicates=True)
             if pos_map:
@@ -35,8 +35,8 @@ class Environment:
                 self.grid[rows, cols] = color_num
 
     def get_pos_map(self, cell_cond=True, bind_cell=False, remove_duplicates=False):
-        cell_cond = lambda _: cell_cond if isinstance(cell_cond, bool) else cell_cond
-        
+        if isinstance(cell_cond, bool):
+            cell_cond = lambda _ : cell_cond
         if bind_cell:
             pos_map = list(map(lambda cell: [cell, [int(cell.pos[0]), int(cell.pos[1])]], (cell for cell in self.cells if cell_cond(cell))))
         else:

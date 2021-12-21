@@ -1,7 +1,7 @@
 import numpy as np
 from src.rule_classes import CellRule
 
-class Rule1(CellRule):
+class Rule0(CellRule):
     def __init__(self):
         self.display_name = "Constant Move"
         self.exp = "The cells have no changing parameters. They only have a constant input of 1. Their actions is to either move left, right, north or south."    
@@ -27,7 +27,7 @@ class Rule1(CellRule):
         cell.think()
         cell.live() 
 
-class Rule2(CellRule):
+class Rule1(CellRule):
     def __init__(self):
         self.display_name = "Changing Move"
         self.exp = "The cells have the following parameters: 1 (constant). They only have a constant input of 1. Their actions is to either move left, right, north or south."    
@@ -59,7 +59,7 @@ class Rule2(CellRule):
         cell.think()
         cell.live()
 
-class Rule3(CellRule):
+class Rule2(CellRule):
     def __init__(self):
         self.display_name = 'Rule3'
         self.exp = ''
