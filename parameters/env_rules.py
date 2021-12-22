@@ -4,7 +4,7 @@ from src.rule_classes import EnvRule
 
 class Rule0(EnvRule):
     def __init__(self):
-        self.display_name = "Simple rectangle overlap"
+        self.display_name = "dkjslfkjds"
         self.exp = "The cells each reproduce one new cell if they are a subrectangle of the grid (can be chosen to be any). Cells can have the same position. The new cells inherit the exact same brain_dna as their parent. Every new cell is then randomly put in the grid. "    
         self.params_dict = {
             "grid_size": {"val": 30, "exp": "Grid size."},
@@ -88,7 +88,7 @@ class Rule2(EnvRule):
     
 class Rule3(EnvRule):
     def __init__(self):
-        self.display_name = "Rule2"
+        self.display_name = "Rule3"
         self.exp = ""
         self.params_dict = {
             "grid_size": {"val": 30, "exp": "Grid size."},
@@ -159,7 +159,7 @@ class Rule5(EnvRule):
         super().__init__()
         
     def env_func(_, env):
-        reproduceable_cells = [cell for cell in env.cells if len(cell.neighbors) >= env.params['min_neighbors']]
+        reproduceable_cells = [cell for cell in env.cells if cell.neighbors >= env.params['min_neighbors']]
 
         for cell in env.cells:
             cell.reproduceable = True if cell in reproduceable_cells else False

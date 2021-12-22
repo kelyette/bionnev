@@ -17,8 +17,20 @@ class Environment:
         for cell in self.cells:
             cell.rule.cell_func(cell, self,  *args, **kwargs)
 
-    def get_grid(self, plot):
+    def get_grid(self, plot=None, stack=''):
         self.grid = np.zeros((self.grid_size, self.grid_size), dtype=int)
+        
+        if stack == 'add':
+            height_grid = self.grid.copy()
+            
+            pos_map = self.get_pos_map(cell_cond=True)
+            for y in range(self.grid_size - 1):
+                for x in range(self.grid_size - 1):
+                    if [x, y] in pos_map:
+                        height_grid[x, y] += 1
+                        
+            return height_grid
+                
         
         for rule in plot.rules:
             self.add_type(**rule)
@@ -27,7 +39,7 @@ class Environment:
     
     def add_type(self, show_cond, cell_cond, color_num):
         if isinstance(show_cond, bool):
-            show_cond = lambda _ : show_cond
+            show_cond = lambda _: show_cond
         if show_cond(self):
             pos_map = self.get_pos_map(cell_cond=cell_cond, remove_duplicates=True)
             if pos_map:
@@ -51,25 +63,15 @@ class Environment:
 
         return pos_map
     
-    def get_interacting_cells(self, cell=False, cond=True, xradius=0, yradius=0):
+    def get_interacting_cells(self, cell=False, cond=True, flat=False, xradius=(0, 0), yradius=(0, 0)):
         pos_map = self.get_pos_map(cond, bind_cell=True)
-        clusters = []
-        for cell1 in pos_map:
-            for cell2 in pos_map:
-                if (cell1 is not cell2):
-                    if (abs(cell1[1][0] - cell2[1][0]) < (xradius * 2)) and (abs(cell1[1][1] - cell2[1][1]) < (yradius * 2)):
-                        clusters.append(list(map(lambda array: list(array), np.unique(np.array([cell1, cell2])))))
-                        for cluster in clusters:
-                            if any(c in cluster for c in (cell1, cell2)):
-                                cluster.add(cell1)
-                                cluster.add(cell2)
-                                
-        if cell:
-            return [cluster for cluster in clusters if cell is cluster[0]]
+        height_grid = self.get_grid(stack='add')
         
-        return list(map(lambda s: list(s), clusters))
-                # if (cell1 is not cell2) and sum([(cell1[1][i]-cell2[1][i])**2 for i in (0,1)])<radius:
-                #     clusters.append([cell1[0], cell2[0]])
+        if cell:
+            return height_grid[int(cell.pos[0]-xradius[0]):int(cell.pos[0]+xradius[1]+1), int(cell.pos[1]-yradius[0]):int(cell.pos[1]+yradius[1]+1)]
+        
+        else:
+            return [height_grid[cell[1][0]-xradius[0]:cell[1][0]+xradius[1]+1, cell[1][1]-yradius[0]:cell[1][1]+yradius[1]+1] for cell in pos_map]           
         
     def next(self, *args, **kwargs):
         if not np.any(self.cells):

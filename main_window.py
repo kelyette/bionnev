@@ -80,7 +80,9 @@ class Gui:
             self.ani.resume()  
         else: 
             self.sim.restart()
+            self.btn_pause.config(text='Pause')
             self.btn_launch.config(text='Launch')
+            self.paused ^= True
             self.ani.pause()
             
             

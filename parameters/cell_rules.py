@@ -98,7 +98,7 @@ class Rule3(CellRule):
             "mean_death": {"val": 50, "exp": "Mean death age (one unit of age is one simulation days)."},
             "std_death": {"val": 2, "exp": "Standard deviation of age."},
         }
-        self.num_sensors = 2
+        self.num_sensors = 4
         self.num_actions = 4
         
         super().__init__()
@@ -107,11 +107,17 @@ class Rule3(CellRule):
         move = np.rint(cell.actions[:2].ravel() - cell.actions[2:4].ravel())
         cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
         
-        cell.neighbors = env.get_interacting_cells(cell=cell, xradius=1, yradius=1)
+        cell.neighbors = sum(env.get_interacting_cells(cell=cell, xradius=(1, 1), yradius=(1, 1)).flatten())
+        cell.neighbors_top = sum(env.get_interacting_cells(cell=cell, xradius=(0, 0), yradius=(2, 0)).flatten())
+        cell.neighbors_right = sum(env.get_interacting_cells(cell=cell, xradius=(0, 2), yradius=(0, 0)).flatten())
+        cell.neighbors_bottom = sum(env.get_interacting_cells(cell=cell, xradius=(0, 0), yradius=(0, 2)).flatten())
+        cell.neighbors_left = sum(env.get_interacting_cells(cell=cell, xradius=(2, 0), yradius=(0, 0)).flatten())
         
         cell.sensors = np.array([
-            int(1/(15-len(cell.neighbors))),
-            np.random.random(1).item(),
+            cell.neighbors_top,
+            cell.neighbors_left,
+            cell.neighbors_bottom,
+            cell.neighbors_right,
         ])
         
         cell.think()
