@@ -88,3 +88,31 @@ class Rule2(CellRule):
         
         cell.think()
         cell.live()
+        
+class Rule3(CellRule):
+    def __init__(self):
+        self.display_name = 'Rule3'
+        self.exp = ''
+        self.phys_attr = ['death']
+        self.params_dict = {
+            "mean_death": {"val": 50, "exp": "Mean death age (one unit of age is one simulation days)."},
+            "std_death": {"val": 2, "exp": "Standard deviation of age."},
+        }
+        self.num_sensors = 2
+        self.num_actions = 4
+        
+        super().__init__()
+    
+    def cell_func(_, cell, env):
+        move = np.rint(cell.actions[:2].ravel() - cell.actions[2:4].ravel())
+        cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
+        
+        cell.neighbors = env.get_interacting_cells(cell=cell, xradius=1, yradius=1)
+        
+        cell.sensors = np.array([
+            int(1/(15-len(cell.neighbors))),
+            np.random.random(1).item(),
+        ])
+        
+        cell.think()
+        cell.live()

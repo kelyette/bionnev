@@ -42,20 +42,35 @@ class Environment:
         else:
             pos_map = list(map(lambda cell: [int(cell.pos[0]), int(cell.pos[1])], (cell for cell in self.cells if cell_cond(cell))))
    
-        np_pos_map = np.array(pos_map)
-        np_pos_map_wo_dupe = np.unique(np_pos_map, axis=0)
-        pos_map_wo_dupe = list(map(lambda array: list(array), np_pos_map_wo_dupe))
+            np_pos_map = np.array(pos_map)
+            np_pos_map_wo_dupe = np.unique(np_pos_map, axis=0)
+            pos_map_wo_dupe = list(map(lambda array: list(array), np_pos_map_wo_dupe))
+            
+            if remove_duplicates:
+                return pos_map_wo_dupe
 
-        return pos_map_wo_dupe if remove_duplicates else pos_map
+        return pos_map
     
-    def get_interacting_cells(self, cond=True, radius=0):
-        pos_map = self.get_pos_map(cond,bind_cell=True)
+    def get_interacting_cells(self, cell=False, cond=True, xradius=0, yradius=0):
+        pos_map = self.get_pos_map(cond, bind_cell=True)
         clusters = []
         for cell1 in pos_map:
             for cell2 in pos_map:
-                if (cell1 is not cell2) and sum([(cell1[1][i]-cell2[1][i])**2 for i in (0,1)])<radius:
-                    clusters.append([cell1[0], cell2[0]])
-
+                if (cell1 is not cell2):
+                    if (abs(cell1[1][0] - cell2[1][0]) < (xradius * 2)) and (abs(cell1[1][1] - cell2[1][1]) < (yradius * 2)):
+                        clusters.append(list(map(lambda array: list(array), np.unique(np.array([cell1, cell2])))))
+                        for cluster in clusters:
+                            if any(c in cluster for c in (cell1, cell2)):
+                                cluster.add(cell1)
+                                cluster.add(cell2)
+                                
+        if cell:
+            return [cluster for cluster in clusters if cell is cluster[0]]
+        
+        return list(map(lambda s: list(s), clusters))
+                # if (cell1 is not cell2) and sum([(cell1[1][i]-cell2[1][i])**2 for i in (0,1)])<radius:
+                #     clusters.append([cell1[0], cell2[0]])
+        
     def next(self, *args, **kwargs):
         if not np.any(self.cells):
             return 0

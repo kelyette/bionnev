@@ -145,3 +145,32 @@ class Rule4(EnvRule):
             env.cells.extend(new_cells)
             
         return 1
+    
+class Rule5(EnvRule):
+    def __init__(self):
+        self.display_name = "Clusters"
+        self.exp = "The cells can reproduce"
+        self.params_dict = {
+            "grid_size": {"val": 50, "exp": "Grid size."},
+            "num_cells": {"val": 20, "exp": "Number of initial cells."},
+            "regeneration_days": {"val": 30, "exp": "Frequency (in days) at which the cells reproduce."},
+            "min_neighbors": {"val": 4, "exp": "How many neighbors (other cells around it) the cells need to be able to reproduce."},
+        }
+        super().__init__()
+        
+    def env_func(_, env):
+        reproduceable_cells = [cell for cell in env.cells if len(cell.neighbors) >= env.params['min_neighbors']]
+
+        for cell in env.cells:
+            cell.reproduceable = True if cell in reproduceable_cells else False
+            
+        if env.clock % env.params['regeneration_days'] == 0:
+            new_cells = [Cell(env.envrule, env.cellrule) for _ in range(len(reproduceable_cells))]
+            
+            for i, c in enumerate(new_cells):
+                c.pos = np.rint(np.random.uniform(0, env.grid_size - 1, 2))
+                c.brain_dna = reproduceable_cells[i].brain_dna
+                
+            env.cells.extend(new_cells)
+            
+        return 1
