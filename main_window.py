@@ -5,7 +5,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from parameters import plot_rules
 from src.simulation import Simulation
-from new_option_windows import Settings
+from options_window import Settings
 
 from inspect import getmembers, isfunction, isclass
 import pickle

@@ -7,7 +7,7 @@ import PySimpleGUI as sg
 
 from src.main_thread import MainThread
 from src.simulation import Simulation
-import src.option_windows as opt_win
+import archive.option_windows as opt_win
 
 matplotlib.use('TkAgg')
 

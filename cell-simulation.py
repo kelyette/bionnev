@@ -1,4 +1,4 @@
-from newgui import Gui
+from main_window import Gui
 import yaml
 
 def main():

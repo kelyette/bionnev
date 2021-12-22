@@ -21,6 +21,12 @@ class Settings:
         self.chosen_plotrule = chosen_plotrule
 
         self.get_rules()
+        self.kwargs_tabs = {
+            'env' : [self.envrules, self.envrule_exps, 'lb_envrule', 'msg_envrule_exp', 'Rules'],
+            'cell' : [self.cellrules, self.cellrule_exps, 'lb_cellrule', 'msg_cellrule_exp', 'Rules'],
+            'plot' : [self.plotrules, self.plotrule_exps, 'lb_plotrule', 'msg_plotrule_exp', 'Plotting']
+    
+        }
         self.init_window()
 
 
@@ -58,7 +64,7 @@ class Settings:
         frm_params = tk.Frame(self.tab_env)
         frm_controls = tk.Frame(self.tab_env)
 
-        self.set_select_n_exp(frm_rules, self.envrules, self.envrule_exps, 'lb_envrule', 'msg_envrule_exp', 'Rules')
+        self.set_select_n_exp(frm_rules, *self.kwargs_tabs['env'])
         
         frm_rules.pack(side=tk.TOP)
         frm_params.pack(side=tk.TOP)
@@ -71,7 +77,7 @@ class Settings:
         frm_params = tk.Frame(self.tab_cell)
         frm_controls = tk.Frame(self.tab_cell)
 
-        self.set_select_n_exp(frm_rules, self.cellrules, self.cellrule_exps, 'lb_cellrule', 'msg_cellrule_exp', 'Rules')
+        self.set_select_n_exp(frm_rules, *self.kwargs_tabs['cell'])
 
         frm_rules.pack(side=tk.TOP)
         frm_params.pack(side=tk.TOP)
@@ -84,7 +90,7 @@ class Settings:
         frm_params = tk.Frame(self.tab_plot)
         frm_controls = tk.Frame(self.tab_plot)
 
-        self.set_select_n_exp(frm_rules, self.plotrules, self.plotrule_exps, 'lb_plotrule', 'msg_plotrule_exp', 'Plotting')
+        self.set_select_n_exp(frm_rules, *self.kwargs_tabs['cell'])
 
         frm_rules.pack(side=tk.TOP)
         frm_params.pack(side=tk.TOP)
@@ -92,6 +98,7 @@ class Settings:
         self.tabControl.add(self.tab_plot, text='Plotting')
 
     def set_select_n_exp(self, master, rule_list, exp_dict, rule_var, rule_var_exp, title):
+        
         frm_left = tk.Frame(master)
         frm_right = tk.Frame(master)
         lbl_title_left = tk.Label(master=frm_left, text=title)
