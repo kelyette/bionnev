@@ -1,6 +1,6 @@
 from tkinter.constants import X
 import numpy as np
-from src.cell import Cell
+from classes.cell import Cell
 
 class CellRule:
     def __init__(self):

@@ -1,4 +1,4 @@
-from src.simulation import Simulation
+from classes.simulation import Simulation
 from parameters import plot_rules
 import threading, time
 

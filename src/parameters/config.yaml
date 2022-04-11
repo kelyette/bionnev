@@ -1,0 +1,3 @@
+default_envrule: 'Rule3'
+default_cellrule: 'Rule2'
+default_plotrule: 'Rule1'

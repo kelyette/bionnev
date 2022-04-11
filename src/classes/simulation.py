@@ -2,7 +2,7 @@ import numpy as np
 import inspect
 import parameters.cell_rules as cr
 import parameters.env_rules as er
-from src.environment import Environment
+from classes.environment import Environment
 
 class Simulation:
     def __init__(self, envrule, cellrule):

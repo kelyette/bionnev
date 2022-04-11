@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import PySimpleGUI as sg
 
-from src.main_thread import MainThread
-from src.simulation import Simulation
+from classes.main_thread import MainThread
+from classes.simulation import Simulation
 import archive.option_windows as opt_win
 
 matplotlib.use('TkAgg')

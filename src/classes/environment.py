@@ -1,5 +1,5 @@
 import numpy as np
-from src.cell import Cell
+from classes.cell import Cell
 
 class Environment:
     def __init__(self, envrule, cellrule):

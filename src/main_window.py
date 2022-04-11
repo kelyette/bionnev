@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from parameters import plot_rules
-from src.simulation import Simulation
+from classes.simulation import Simulation
 from options_window import Settings
 
 from inspect import getmembers, isfunction, isclass
@@ -82,9 +82,8 @@ class Gui:
             self.sim.restart()
             self.btn_pause.config(text='Pause')
             self.btn_launch.config(text='Launch')
-            self.paused ^= True
+            self.paused = True
             self.ani.pause()
-            
             
     def pause(self):
         self.paused ^= True

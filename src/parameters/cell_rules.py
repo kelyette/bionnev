@@ -1,5 +1,5 @@
 import numpy as np
-from src.rule_classes import CellRule
+from classes.rule_classes import CellRule
 
 class Rule0(CellRule):
     def __init__(self):

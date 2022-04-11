@@ -1,6 +1,6 @@
 import numpy as np
-from src.cell import Cell
-from src.rule_classes import EnvRule
+from classes.cell import Cell
+from classes.rule_classes import EnvRule
 
 class Rule0(EnvRule):
     def __init__(self):

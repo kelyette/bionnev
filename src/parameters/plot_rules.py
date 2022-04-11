@@ -1,4 +1,4 @@
-from src.plotting import Plot
+from classes.plotting import Plot
 import numpy as np
 
 class Rule1(Plot):
