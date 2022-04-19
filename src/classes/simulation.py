@@ -5,12 +5,21 @@ import parameters.env_rules as er
 from classes.environment import Environment
 
 class Simulation:
-    def __init__(self, envrule, cellrule):
-        self.envrule = getattr(er, envrule)()
-        self.cellrule = getattr(cr, cellrule)()
-        self.env = Environment(self.envrule, self.cellrule) # Initialize the environment
-        self.update_rules(new_envrule=self.envrule, new_cellrule=self.cellrule)
-    
+    def __init__(self, envrule, cellrule, local=False):
+        if local:
+            self.envrule = getattr(er, envrule)()
+            self.cellrule = getattr(cr, cellrule)()
+            self.env = Environment(self.envrule, self.cellrule) # Initialize the environment
+            self.update_rules(new_envrule=self.envrule, new_cellrule=self.cellrule)
+        
+        else:
+            if not inspect.isclass(cellrule) and inspect.isclass(envrule):
+                raise AttributeError(f'"local" parameter specified as {local}, therefore parameters "cellrule" and "envrule" must be classes')
+            
+            self.envrule = envrule
+            self.cellrule = cellrule
+            self.env = Environment(self.envrule, self.envrule)
+        
     def update_rules(self, new_params=None, new_envrule=None, new_cellrule=None):
         if new_params: 
             self.params.update_params(new_params)

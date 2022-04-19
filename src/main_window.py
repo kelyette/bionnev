@@ -13,7 +13,7 @@ import os
 
 class Gui:
     def __init__(self, default_envrule, default_cellrule, default_plotrule):
-        self.sim = Simulation(default_envrule, default_cellrule)
+        self.sim = Simulation(default_envrule, default_cellrule, local=True)
         self.plot_stgs = getattr(plot_rules, default_plotrule)()
         self.init_window()
 
