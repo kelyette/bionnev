@@ -67,7 +67,10 @@ class MainThread(threading.Thread):
     def next(self):
         if not self.sim.env.clock % self.plot_stgs.show_n:
             self.fig = draw_figure(self.window['plot'].TKCanvas, self.sg_plot())
+        tb = time.time()
         self.sim.next()
+        ta = time.time()
+        self.update_took = ta - tb
 
     def launch(self):
         if self.bool_resume:

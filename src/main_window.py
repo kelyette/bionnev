@@ -9,6 +9,7 @@ from options_window import Settings
 
 from inspect import getmembers, isfunction, isclass
 import pickle
+import time
 import os
 
 class Gui:
@@ -16,6 +17,7 @@ class Gui:
         self.sim = Simulation(default_envrule, default_cellrule, local=True)
         self.plot_stgs = getattr(plot_rules, default_plotrule)()
         self.init_window()
+        self.last_time = 0.0
 
     def init_window(self):
         self.root = tk.Tk()
@@ -54,6 +56,8 @@ class Gui:
         self.ax.set_yticks([])
 
     def updatefig(self, i):
+        self.sim.update_took = time.time() - self.last_time
+        self.last_time = time.time()
         if (not i % self.plot_stgs.show_n) and (not self.paused):
             self.sim.next()
             self.update_stats()
@@ -62,7 +66,7 @@ class Gui:
     
     def update_stats(self):
         for i, stat in enumerate(list(self.plot_stgs.stats.keys())):
-            self.lbl_stats[i].config(text=f"{stat}: {self.plot_stgs.stats[stat](self.sim.env):0.{self.plot_stgs.stats_pres}f}")
+            self.lbl_stats[i].config(text=f"{stat}: {self.plot_stgs.stats[stat](self.sim):0.{self.plot_stgs.stats_pres}f}")
 
     def start(self):
         self.started = True

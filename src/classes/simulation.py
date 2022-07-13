@@ -6,6 +6,8 @@ from classes.environment import Environment
 
 class Simulation:
     def __init__(self, envrule, cellrule, local=False):
+        self.update_took = 0.0
+        
         if local:
             self.envrule = getattr(er, envrule)()
             self.cellrule = getattr(cr, cellrule)()
