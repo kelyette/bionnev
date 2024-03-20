@@ -5,13 +5,11 @@ import json
 from classes.simulation import Simulation
 from parameters import plot_rules
 
-import matplotlib.pyplot as plt
-
-LOG_OK = '\033[96m[OK]\033[0m '
 LOG_ERR = '\033[91m[ERR]\033[0m '
 LOG_WARN = '\033[93m[WARN]\033[0m '
+LOG_DEBUG = '\033[96m[DEBUG]\033[0m '
 
-print(LOG_OK + "Starting Eel")
+print(LOG_DEBUG + "Starting Eel")
 
 eel.init('web')
 
@@ -38,7 +36,7 @@ state = State()
 
 @eel.expose
 def sim_start():
-    print(LOG_OK + "jsmod:sim_start()")
+    print(LOG_DEBUG + "jsmod:sim_start()")
 
     if state.started:
         sim.restart()
@@ -50,7 +48,7 @@ def sim_start():
 
 @eel.expose
 def sim_pause():
-    print(LOG_OK + "jsmod:sim_pause()")
+    print(LOG_DEBUG + "jsmod:sim_pause()")
     
     state.paused ^= True
     
@@ -58,19 +56,19 @@ def sim_pause():
 
 @eel.expose
 def sim_stop():
-    print(LOG_OK + "jsmod:sim_stop()")
+    print(LOG_DEBUG + "jsmod:sim_stop()")
     
     state.started = False
 
 @eel.expose
 def get_state():
-    print(LOG_OK + "jsmod:get_state()")
+    print(LOG_DEBUG + "jsmod:get_state()")
 
     return state.to_dict()
 
 @eel.expose
 def sim_launch():
-    print(LOG_OK + "jsmod:sim_launch()")
+    print(LOG_DEBUG + "jsmod:sim_launch()")
 
     state.started ^= True
     if state.started:
@@ -81,7 +79,7 @@ def sim_launch():
 
 @eel.expose
 def sim_get_state():
-    """ print(LOG_OK + "jsmod:sim_update()") """
+    """ print(LOG_DEBUG + "jsmod:sim_update()") """
 
     frame = sim.env.get_state()
     stats = [f"{stat}: {plot_stgs.stats[stat](sim):0.{plot_stgs.stats_pres}f}" for stat in list(plot_stgs.stats.keys())]
@@ -89,16 +87,9 @@ def sim_get_state():
 
 @eel.expose
 def sim_get_size():
-    print(LOG_OK + "jsmod:sim_get_size()")
+    print(LOG_DEBUG + "jsmod:sim_get_size()")
 
     return sim.env.grid_size
-
-def exit_plot():
-    print(sorted(sim.env.x))
-    plt.plot(sorted(sim.env.x))
-    plt.show()
-
-atexit.register(exit_plot)
 
 if __name__ == '__main__':
     sim.env.x = []

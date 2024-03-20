@@ -1,28 +1,17 @@
-# Cell Evolution Simulation
-Simulates natural selection and evolution processes for intelligent cells in a environment. 
+# BIOlogical Neural Network EVolution
+Simulates natural selection and evolution processes for intelligent cells in an environment. 
 
-## Cells
-The cell component is a class instance where specific attributes have been set.
-
-
-The simulation can be seen with the simple GUI. Each point in the grid is a 
-
-# 0. Setup
+## Setup
 
 ```bash
-pip install requirements.txt
+git clone https://github.com/ckelyan/bionnev
+cd bionnev/
 ```
-
-
-# 1. Using existing rules
-
-# 2. Creating your own simulation rules 
-
-## 2.1 Environment rule set
-
-## 2.2 Cell rule set
-
-## 2.3 Plotting rule set
-
-
-
+```bash
+python3 -m venv venv
+source venv/bin/<activate_file>
+```
+```bash
+pip install -r requirements.txt
+python main.py
+```
