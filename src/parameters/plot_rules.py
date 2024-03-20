@@ -17,7 +17,7 @@ class Rule1(Plot):
             'Number of cells': lambda sim: len(sim.env.cells),
             'Mean age' : lambda sim: sum([cell.age/len(sim.env.cells) for cell in sim.env.cells]),
             'FPS': lambda sim: 1 / sim.update_took if sim.update_took != 0 else 0,
-            'avg cell accx': lambda sim: sum(cell.acc[0] for cell in sim.env.cells)/len(sim.env.cells),
-            'avg cell accy': lambda sim: sum(cell.acc[1] for cell in sim.env.cells)/len(sim.env.cells),
+            # 'avg cell accx': lambda sim: sum(cell.acc[0] for cell in sim.env.cells)/len(sim.env.cells),
+            # 'avg cell accy': lambda sim: sum(cell.acc[1] for cell in sim.env.cells)/len(sim.env.cells),
         }
         super().__init__()

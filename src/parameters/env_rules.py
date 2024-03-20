@@ -164,11 +164,6 @@ class Rule5(EnvRule):
             "num_safe_frames": {"val": 10, "exp": "Number of safe frames a cell has to have been in to be able to reproduce."},
             "req_neighbors": {"val": 1, "exp": "Amount of neighbors (other cells around it) the cells need to be able to reproduce."},
         }
-        self.cell_attributes = {
-            "req_neighbor_distance": {"initial_val": 3, "exp": "Distance to the closest neighbor"},
-            "safe_frame_count": {"initial_val": 0, "exp": "Number of consecutive frames a cell has been safe"},
-            "neighbors": {"initial_val": 0, "exp": "Current amount of neighbors"}
-        }
         super().__init__()
         
     def env_func(_, env):

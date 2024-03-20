@@ -184,28 +184,32 @@ class Rule5(CellRule):
         self.params_dict = {
             "mean_death": {"val": 100, "exp": "Mean age of death."},
             "std_death": {"val": 25, "exp": "Standard deviation of age of death."},
-            "osc_cycle": {"val": 2, "exp": "Number of time frames for a full oscillatory cycle"}
+            "osc_cycle": {"val": 2, "exp": "Number of time frames for a full oscillatory cycle"},
+            "req_neighbor_distance": {"val": 5, "exp": "Distance to the closest neighbor"},
+            "neighbor_radius": {"val": 10, "exp": "Radius around the cell to look for neighbors"},
+            "safe_frame_count": {"val": 0, "exp": "Number of consecutive frames a cell has been safe"},
+            "n_neighbors": {"val": 0, "exp": "Current amount of neighbors"}
         }
         self.num_sensors = 2
-        self.num_actions = 3
+        self.num_actions = 2
         super().__init__()
     
     def cell_func(_, cell, env):
-        env.x.append(cell.actions[0].ravel())
-        if env.clock == 5:
-            exit()
-        acc = cell.actions[:2].ravel()
-        accf = cell.actions[2] - 1
-        acc = acc - 1 * accf
-        cell.acc = acc
-        cell.pos += acc
+        vel = cell.actions[:2].ravel()
+        cell.pos += 3 * vel - 1.5
         cell.pos = np.clip(cell.pos, 0, env.grid_size)
 
-        cell.neighbors = len(env.get_neighbors(cell, cell.req_neighbor_distance))
+        neighbors = env.get_neighbors(cell, cell.req_neighbor_distance) # TODO optimize
+        cm_diff = np.zeros(2)
+        if neighbors:
+            neighbors_cm = np.mean([c.pos for c in neighbors], axis=0)
+            cm_diff = cell.pos - neighbors_cm
+
+        cell.neighbors = len(neighbors)
 
         cell.sensors = np.array([
-            cell.neighbors,
-            np.sin(np.pi * env.clock / (360 / cell.osc_cycle)).item()
+            cm_diff[0],
+            cm_diff[1]
         ])
 
         cell.step()
