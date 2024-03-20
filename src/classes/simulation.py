@@ -1,11 +1,18 @@
+from __future__ import annotations
+
 import numpy as np
 import inspect
 import parameters.cell_rules as cr
 import parameters.env_rules as er
 from classes.environment import Environment
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from parameters.env_rules import EnvRule
+    from parameters.cell_rules import CellRule
+
 class Simulation:
-    def __init__(self, envrule, cellrule, local=False):
+    def __init__(self, envrule: str | EnvRule, cellrule: str | CellRule, local=False):
         self.update_took = 0.0
         
         if local:
@@ -21,6 +28,8 @@ class Simulation:
             self.envrule = envrule
             self.cellrule = cellrule
             self.env = Environment(self.envrule, self.envrule)
+        
+        self.env.x = []
         
     def update_rules(self, new_params=None, new_envrule=None, new_cellrule=None):
         if new_params: 
@@ -40,10 +49,7 @@ class Simulation:
             [c.set_attributes(new_cell_rule=cellrule) for c in self.env.cells]
 
     def next(self):
-        if np.any(self.env.cells):
-            self.env.next(self.env)
-        else:
-            exit()
+        return self.env.next()
 
     def restart(self):
         self.env = Environment(self.envrule, self.cellrule)

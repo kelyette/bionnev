@@ -1,4 +1,3 @@
-from tkinter.constants import X
 import numpy as np
 from classes.cell import Cell
 

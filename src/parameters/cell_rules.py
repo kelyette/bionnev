@@ -1,6 +1,8 @@
 import numpy as np
 from classes.rule_classes import CellRule
 
+import matplotlib.pyplot as plt
+
 class Rule0(CellRule):
     def __init__(self):
         self.display_name = "Constant Move"
@@ -8,15 +10,13 @@ class Rule0(CellRule):
         self.phys_attr = ['death','velocity']
         self.params_dict = {
             "mean_death": {"val": 25, "exp": "Mean death age (one unit of age is one simulation days)."},
-            "std_death": {"val": 5, "exp": "Standard deviation of age."},
-            "mean_velocity": {"val": 1, "exp": "Mean velocity of the cell. This represents the number of pixels the cell will move if it has a moving signal."},
-            "std_velocity": {"val": 0.3, "exp": "Standard deviaiton of the velocity of the cells."},
+            "std_death": {"val": 5, "exp": "Standard deviation of age."}
         }
         self.num_sensors = 1
         self.num_actions = 4
         super().__init__()
     
-    def cell_func(_, cell, env):
+    def cell_func(_, cell, env):    
         move = np.rint((cell.actions[:2].ravel() - cell.actions[2:4].ravel()) * cell.velocity)
         cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
         
@@ -24,7 +24,7 @@ class Rule0(CellRule):
             1.0,
         ])
 
-        cell.think()
+        cell.step()
         cell.live() 
 
 class Rule1(CellRule):
@@ -33,8 +33,8 @@ class Rule1(CellRule):
         self.exp = "The cells have the following parameters: 1 (constant). They only have a constant input of 1. Their actions is to either move left, right, north or south."    
         self.phys_attr = ['death','velocity']
         self.params_dict = {
-            "mean_death": {"val": 25, "exp": "Mean death age (one unit of age is one simulation days)."},
-            "std_death": {"val": 5, "exp": "Standard deviation of age."},
+            "mean_death": {"val": 400, "exp": "Mean death age (one unit of age is one simulation days)."},
+            "std_death": {"val": 25, "exp": "Standard deviation of age."},
             "mean_velocity": {"val": 1, "exp": "Mean velocity of the cell. This represents the number of pixels the cell will move if it has a moving signal."},
             "std_velocity": {"val": 0.3, "exp": "Standard deviaiton of the velocity of the cells."},
             "osc_cycle": {"val": 0.3, "exp": "Number of time frames for a full oscillatory cycle"}
@@ -45,6 +45,13 @@ class Rule1(CellRule):
         super().__init__()
     
     def cell_func(_, cell, env):
+        toplot = cell.actions[0].ravel()[0].item()
+        if toplot and env.clock % 25 == 0:
+            env.x.append(toplot)
+
+        if env.clock == 200:
+            exit()
+
         move = np.rint((cell.actions[:2].ravel() - cell.actions[2:4].ravel()) * cell.velocity)
         cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
         
@@ -56,7 +63,7 @@ class Rule1(CellRule):
             cell.pos[1] / env.grid_size,
         ])
         
-        cell.think()
+        cell.step()
         cell.live()
 
 class Rule2(CellRule):
@@ -86,7 +93,7 @@ class Rule2(CellRule):
             1.0
         ])
         
-        cell.think()
+        cell.step()
         cell.live()
         
 class Rule3(CellRule):
@@ -106,7 +113,7 @@ class Rule3(CellRule):
     def cell_func(_, cell, env):
         move = np.rint(cell.actions[:2].ravel() - cell.actions[2:4].ravel())
         cell.pos += move - (move + cell.pos > (env.grid_size-1)) * 2*((move + cell.pos) - env.grid_size+1) - (move + cell.pos < 0) * 2*((move + cell.pos))
-        
+
         cell.neighbors = sum(env.get_interacting_cells(cell=cell, xradius=(1, 1), yradius=(1, 1)).flatten())
         cell.neighbors_top = sum(env.get_interacting_cells(cell=cell, xradius=(0, 0), yradius=(2, 0)).flatten())
         cell.neighbors_right = sum(env.get_interacting_cells(cell=cell, xradius=(0, 2), yradius=(0, 0)).flatten())
@@ -120,5 +127,86 @@ class Rule3(CellRule):
             cell.neighbors_right,
         ])
         
-        cell.think()
+        cell.step()
+        cell.live()
+
+class Rule4(CellRule):
+    def __init__(self):
+        self.display_name = "Social instinct"
+        self.exp = """The cells need to be close to each other, but not too
+                      close, to reproduce.  move based on their
+                      velocity, itself based on their acceleration, itself
+                      based on the average vector between the neighboring
+                      cells. The goal is to replicate a flocking behavior.
+                      (use env rule 5)
+        """
+        self.phys_attr = ['death']
+        self.params_dict = {
+            "mean_death": {"val": 25, "exp": "Mean death age (one unit of age is one simulation days)."},
+            "std_death": {"val": 5, "exp": "Standard deviation of age."},
+        }
+        self.num_sensors = 1
+        self.num_actions = 2
+        
+        super().__init__()
+    
+    def cell_func(_, cell, env):
+        cell.acc = np.zeros(2, dtype=float)
+        move = np.rint((cell.actions[:2].ravel() - cell.actions.ravel()) * cell.vel)
+        if (cell.id == 1): print(cell.actions[:2], cell.actions)
+        cell.acc = np.random.random(2) * 2 - 1
+
+        cell.pos += cell.vel / 2
+        cell.vel += cell.acc
+
+        cell.pos = np.floor(cell.pos)
+        
+        """ neighbors = env.get_neighbors(cell, 1) """
+        
+        cell.sensors = np.array([
+            1.0,
+        ])
+
+        cell.step()
+        cell.live()
+
+class Rule5(CellRule):
+    def __init__(self):
+        self.display_name = "Flocking"
+        self.exp = """The cells move based on their velocity, itself based on
+                      their acceleration, itself based on the average vector
+                      of the neighboring cells. The goal is to replicate a
+                      flocking behavior by favoring the reproduciton of cells
+                      that are close to each other in the env rule.
+                      (use env rule 5)
+        """
+        self.phys_attr = ['death']
+        self.params_dict = {
+            "mean_death": {"val": 100, "exp": "Mean age of death."},
+            "std_death": {"val": 25, "exp": "Standard deviation of age of death."},
+            "osc_cycle": {"val": 2, "exp": "Number of time frames for a full oscillatory cycle"}
+        }
+        self.num_sensors = 2
+        self.num_actions = 3
+        super().__init__()
+    
+    def cell_func(_, cell, env):
+        env.x.append(cell.actions[0].ravel())
+        if env.clock == 5:
+            exit()
+        acc = cell.actions[:2].ravel()
+        accf = cell.actions[2] - 1
+        acc = acc - 1 * accf
+        cell.acc = acc
+        cell.pos += acc
+        cell.pos = np.clip(cell.pos, 0, env.grid_size)
+
+        cell.neighbors = len(env.get_neighbors(cell, cell.req_neighbor_distance))
+
+        cell.sensors = np.array([
+            cell.neighbors,
+            np.sin(np.pi * env.clock / (360 / cell.osc_cycle)).item()
+        ])
+
+        cell.step()
         cell.live()

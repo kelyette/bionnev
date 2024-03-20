@@ -1,0 +1,14 @@
+body {
+    font-family: Roboto;
+}
+
+content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+canvas-box,
+sim-stats {
+    display: block;
+}
