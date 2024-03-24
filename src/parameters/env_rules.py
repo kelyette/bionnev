@@ -222,6 +222,7 @@ class Rule6(EnvRule):
                 cell.safe_frame_count = 0
  
         new_cells = env.create_cells(len(reproduceable_cells))
+        print(env.cells[0].actions)
         
         for i,c in enumerate(new_cells):
             c.pos = np.random.uniform(0, env.grid_size, 2)

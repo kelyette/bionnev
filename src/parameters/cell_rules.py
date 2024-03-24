@@ -1,5 +1,6 @@
 import numpy as np
 from classes.rule_classes import CellRule
+import torch
 
 import matplotlib.pyplot as plt
 
@@ -192,10 +193,11 @@ class Rule5(CellRule):
         }
         self.num_sensors = 2
         self.num_actions = 2
+        self.hidden_shape = [6, ]
         super().__init__()
     
     def cell_func(_, cell, env):
-        vel = cell.actions[:2].ravel()
+        vel = cell.actions[:2].ravel() 
         cell.pos += 3 * vel - 1.5
         cell.pos = np.clip(cell.pos, 0, env.grid_size)
 
@@ -207,10 +209,10 @@ class Rule5(CellRule):
 
         cell.neighbors = len(neighbors)
 
-        cell.sensors = np.array([
+        cell.sensors = torch.tensor([
             cm_diff[0],
             cm_diff[1]
-        ])
+        ], dtype=torch.float32)
 
         cell.step()
         cell.live()

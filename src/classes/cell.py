@@ -1,5 +1,6 @@
 import numpy as np
-from torch import nn
+
+import classes.networks as nets
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -30,6 +31,7 @@ class Cell:
         # actions (output neurons)
         self.actions = np.zeros((self.rule.num_actions, 1), dtype=float)
         self.set_attributes()
+        self.ffn = nets.FeedForwardNN(self.rule.num_sensors, self.rule.num_actions, self.rule.hidden_shape)
 
     def get_state(self):
         return {
@@ -57,8 +59,6 @@ class Cell:
         if self.age >= self.death:
             self.die()
 
-    # unalive the cell
-    # completely pointless
     def die(self):
         self.alive = False
     
@@ -70,11 +70,5 @@ class Cell:
         if self.brain_dna.shape[0] != self.actions.shape[0]:
             raise ValueError(f"The number of actions ({self.actions.shape[0]}) does not match the size of the defined actions array ({self.brain_dna.shape[0]}). Check cell rule.")
 
-        linear_relu_stack = nn.Sequential(
-            nn.Linear(28*28, 512),
-            nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10),
-        )
-        self.actions = 1/(1+ np.exp(-1 * self.brain_dna @ self.sensors))
+        # self.actions = nets.LinearNN.compute(self.brain_dna, self.sensors)
+        self.actions = self.ffn.forward(self.brain_dna, self.sensors)
