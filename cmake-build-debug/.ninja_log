@@ -1,0 +1,4 @@
+# ninja log v5
+1933	2075	1711634320715251781	neuralnet_evolution	20b989f0bc3c6958
+17	210	1711658252546239648	build.ninja	e2205eaa79d2c1ef
+56	1933	1711634320562452107	CMakeFiles/neuralnet_evolution.dir/main.cpp.o	b637f4bc1d223457
